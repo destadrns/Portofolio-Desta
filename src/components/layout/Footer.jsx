@@ -18,7 +18,7 @@ export default function Footer() {
             <a href="#tentang" className="footer__link">Tentang</a>
             <a href="#skill" className="footer__link">Skill</a>
             <a href="#proyek" className="footer__link">Proyek</a>
-            <a href="#perjalanan" className="footer__link">Perjalanan</a>
+            <a href="#pengalaman" className="footer__link">Pengalaman</a>
             <a href="#pendidikan" className="footer__link">Pendidikan</a>
             <a href="#kontak" className="footer__link">Kontak</a>
           </nav>

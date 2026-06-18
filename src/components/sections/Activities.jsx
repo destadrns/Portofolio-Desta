@@ -15,10 +15,10 @@ const cardVariants = {
 
 export default function Activities() {
   return (
-    <SectionWrapper id="aktivitas" alt>
+    <SectionWrapper id="pengalaman">
       <div className="section-header">
         <span className="section-label">Experience</span>
-        <h2 className="section-title">Hal yang Pernah Saya Kerjakan</h2>
+        <h2 className="section-title">Pengalaman &amp; Aktivitas</h2>
         <p className="section-subtitle">
           Beberapa aktivitas yang ikut membentuk cara saya belajar, membangun
           project, dan mengeksplorasi teknologi.

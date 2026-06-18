@@ -2,7 +2,7 @@
 
 ## 1. Product Overview
 
-This product is a personal portfolio website designed to introduce the website owner, showcase skills, present selected projects, explain the learning journey, and provide professional contact information.
+This product is a personal portfolio website designed to introduce the website owner, showcase skills, present selected projects, highlight experience or activities, and provide professional contact information.
 
 The website should feel calm, personal, interactive, modern, and visually polished without looking overly generic or obviously AI-generated. The design must avoid stiff typography, rigid cards, and overly corporate layouts. It should feel like a custom-made portfolio for an Indonesian Informatics student who is seriously growing as a web developer.
 
@@ -150,8 +150,8 @@ Required sections:
 3. About Section
 4. Skills Section
 5. Projects Section
-6. Learning Journey Section
-7. Experience / Activities Section
+6. Experience / Activities Section
+7. Education Section
 8. Contact Section
 9. Footer
 
@@ -197,7 +197,8 @@ Content:
 * Tentang
 * Skill
 * Project
-* Perjalanan
+* Pengalaman
+* Pendidikan
 * Kontak
 * Small CTA button: “Hubungi Saya”
 
@@ -426,39 +427,9 @@ Important content rule:
 
 Do not exaggerate project impact. Keep the descriptions honest, specific, and grounded.
 
-### 9.6 Learning Journey Section
+### 9.6 Experience / Activities Section
 
-This section is important to make the portfolio feel more personal and less generic.
-
-Purpose:
-
-* Show the learning process.
-* Make the website feel more human.
-* Avoid the impression that the owner is pretending to be an expert.
-
-Suggested Indonesian section title:
-
-“Perjalanan Belajar”
-
-Suggested timeline items:
-
-1. “Mulai mengenal dasar web development”
-2. “Mempelajari HTML, CSS, dan JavaScript”
-3. “Mencoba membuat project sederhana”
-4. “Mulai memahami React dan struktur komponen”
-5. “Terus memperbaiki tampilan, responsivitas, dan struktur kode”
-
-Design requirements:
-
-* Use a vertical timeline.
-* Use calm accent dots.
-* Each timeline item should be short.
-* Add subtle scroll animation.
-* Avoid making the section too crowded.
-
-### 9.7 Experience / Activities Section
-
-This section is optional but recommended.
+This section should be prioritized because concrete activities and experience are more valuable for this portfolio.
 
 Use this section to show:
 
@@ -474,11 +445,12 @@ If there is not much experience yet, use a softer title:
 
 * “Hal yang Pernah Saya Kerjakan”
 * “Aktivitas & Pengalaman”
+* “Pengalaman & Aktivitas”
 * “Selected Activities”
 
 Content should remain honest. Do not invent experience.
 
-### 9.8 Contact Section
+### 9.7 Contact Section
 
 The Contact section should be simple, friendly, and clear.
 
@@ -653,7 +625,7 @@ Suggested page title:
 
 Suggested meta description:
 
-“Portofolio pribadi Desta Adriyan Saputra yang menampilkan project web development, skill, perjalanan belajar, dan kontak profesional.”
+“Portofolio pribadi Desta Adriyan Saputra yang menampilkan project web development, skill, pengalaman, aktivitas, dan kontak profesional.”
 
 ## 15. Recommended Tech Stack
 
@@ -681,7 +653,8 @@ For the best modern and scalable result, use React + Vite.
 * Tentang
 * Skill
 * Project
-* Perjalanan
+* Pengalaman
+* Pendidikan
 * Kontak
 * Hubungi Saya
 
@@ -716,9 +689,9 @@ Buttons:
 
 “Berikut beberapa project yang pernah saya buat atau sedang saya kembangkan. Setiap project menjadi bagian dari proses belajar saya dalam memahami desain, struktur kode, dan pengalaman pengguna.”
 
-### Learning Journey Intro
+### Experience Intro
 
-“Setiap project dan latihan kecil menjadi bagian dari proses saya untuk memahami web development dengan lebih baik.”
+“Beberapa aktivitas yang ikut membentuk cara saya belajar, membangun project, dan mengeksplorasi teknologi.”
 
 ### Contact
 
@@ -743,7 +716,6 @@ Buttons:
 
 ### Should Have
 
-* Learning journey timeline.
 * Project filter.
 * Copy email button.
 * Scroll reveal animation.
@@ -763,7 +735,7 @@ Buttons:
 2. User sees the hero section and understands who the owner is.
 3. User clicks “Lihat Project.”
 4. User explores project cards.
-5. User checks skills and learning journey.
+5. User checks skills and experience.
 6. User goes to the contact section.
 7. User contacts through email, GitHub, Instagram, or LinkedIn.
 
@@ -862,7 +834,7 @@ Tasks:
 * Build About section.
 * Build Skills section.
 * Build Projects section.
-* Build Learning Journey section.
+* Build Experience / Activities section.
 * Build Contact section.
 * Build Footer.
 
@@ -933,12 +905,12 @@ src/
       About.jsx
       Skills.jsx
       Projects.jsx
-      Journey.jsx
+      Activities.jsx
       Contact.jsx
   data/
     projects.js
     skills.js
-    journey.js
+    activities.js
   styles/
     globals.css
     variables.css

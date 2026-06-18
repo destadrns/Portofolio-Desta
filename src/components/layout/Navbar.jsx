@@ -9,7 +9,7 @@ const navLinks = [
   { label: 'Tentang', href: '#tentang' },
   { label: 'Skill', href: '#skill' },
   { label: 'Proyek', href: '#proyek' },
-  { label: 'Perjalanan', href: '#perjalanan' },
+  { label: 'Pengalaman', href: '#pengalaman' },
   { label: 'Pendidikan', href: '#pendidikan' },
   { label: 'Kontak', href: '#kontak' },
 ];
