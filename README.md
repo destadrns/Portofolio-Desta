@@ -1,16 +1,61 @@
-# React + Vite
+# Portofolio Desta
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Repository ini berisi source code portfolio pribadi saya, Desta Adriyan Saputra. Website ini dibuat untuk merangkum profil singkat, skill, project, pengalaman, pendidikan, dan kontak dalam satu halaman yang rapi.
 
-Currently, two official plugins are available:
+Fokus utamanya sederhana: menampilkan pekerjaan dan proses belajar saya sebagai mahasiswa Informatika yang tertarik pada web development, data analytics, dan AI.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Isi Website
 
-## React Compiler
+- Profil singkat dan fokus belajar
+- Daftar skill dan tools yang sering digunakan
+- Kumpulan project web, data, big data, dan machine learning
+- Pengalaman serta aktivitas yang relevan
+- Riwayat pendidikan
+- Kontak dan social link
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React
+- Vite
+- CSS custom
+- Framer Motion
+- Lucide React
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Menjalankan Project
+
+```bash
+npm install
+npm run dev
+```
+
+Untuk membuat production build:
+
+```bash
+npm run build
+```
+
+Untuk mengecek lint:
+
+```bash
+npm run lint
+```
+
+## Struktur Singkat
+
+```text
+src/
+  components/
+    common/
+    layout/
+    sections/
+  data/
+  styles/
+  assets/
+public/
+```
+
+Konten project, skill, pendidikan, dan aktivitas dipisah di folder `src/data` supaya lebih mudah diperbarui tanpa perlu banyak menyentuh komponen UI.
+
+## Catatan
+
+Website ini masih akan terus saya rapikan seiring bertambahnya project dan pengalaman baru.
