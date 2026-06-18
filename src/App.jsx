@@ -11,11 +11,11 @@ import Footer from './components/layout/Footer';
 export default function App() {
   return (
     <>
-      <a href="#beranda" className="sr-only">
+      <a href="#konten-utama" className="sr-only">
         Langsung ke konten utama
       </a>
       <Navbar />
-      <main>
+      <main id="konten-utama" tabIndex={-1}>
         <Hero />
         <About />
         <Skills />
