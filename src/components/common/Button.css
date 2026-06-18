@@ -1,0 +1,106 @@
+/* ========================================
+   Button Component Styles
+   ======================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* --- Sizes --- */
+.btn--sm {
+  font-size: var(--text-sm);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.btn--md {
+  font-size: var(--text-sm);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+}
+
+.btn--lg {
+  font-size: var(--text-base);
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-lg);
+}
+
+/* --- Primary --- */
+.btn--primary {
+  background-color: var(--color-dark-accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(37, 49, 43, 0.2);
+}
+
+.btn--primary:hover {
+  background-color: var(--color-accent-hover);
+  box-shadow: 0 4px 14px rgba(37, 49, 43, 0.28);
+  transform: translateY(-1px);
+}
+
+.btn--primary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* --- Secondary --- */
+.btn--secondary {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border: 1.5px solid var(--color-border);
+}
+
+.btn--secondary:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background-color: var(--color-accent-light);
+  transform: translateY(-1px);
+}
+
+/* --- Text --- */
+.btn--text {
+  background-color: transparent;
+  color: var(--color-accent);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.btn--text:hover {
+  color: var(--color-accent-hover);
+  background-color: var(--color-accent-light);
+  border-radius: var(--radius-md);
+}
+
+/* --- Icon-only variant --- */
+.btn--icon {
+  padding: 0.625rem;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border: 1.5px solid var(--color-border);
+}
+
+.btn--icon:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background-color: var(--color-accent-light);
+}

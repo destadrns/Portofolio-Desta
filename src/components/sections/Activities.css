@@ -1,0 +1,44 @@
+/* ========================================
+   Activities Section Styles
+   ======================================== */
+
+.activities__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+.activities__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  height: 100%;
+}
+
+.activities__icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-muted-surface);
+  color: var(--color-accent);
+}
+
+.activities__title {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.activities__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+@media (max-width: 768px) {
+  .activities__grid {
+    grid-template-columns: 1fr;
+  }
+}

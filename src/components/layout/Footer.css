@@ -1,0 +1,76 @@
+/* ========================================
+   Footer Styles
+   ======================================== */
+
+.footer {
+  padding: var(--space-2xl) 0 var(--space-xl);
+  background-color: #E2E4DE;
+  border-top: 1px solid var(--color-border);
+}
+
+.footer__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  text-align: center;
+}
+
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.footer__logo {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.footer__tagline {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.footer__personal {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+  font-style: italic;
+  margin-top: var(--space-xs);
+  max-width: 320px;
+  line-height: var(--line-height-normal);
+}
+
+.footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-lg);
+}
+
+.footer__link {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  transition: color var(--transition-base);
+}
+
+.footer__link:hover {
+  color: var(--color-accent);
+}
+
+.footer__bottom {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  width: 100%;
+}
+
+.footer__copy {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+}

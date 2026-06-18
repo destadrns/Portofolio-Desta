@@ -1,0 +1,44 @@
+/* ========================================
+   Card Component Styles
+   ======================================== */
+
+.card {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+/* --- Padding sizes --- */
+.card--pad-sm {
+  padding: var(--space-lg);
+}
+
+.card--pad-md {
+  padding: var(--space-xl);
+}
+
+.card--pad-lg {
+  padding: var(--space-2xl);
+}
+
+/* --- Hover --- */
+.card--hover:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+  .card--pad-md {
+    padding: var(--space-lg);
+  }
+
+  .card--pad-lg {
+    padding: var(--space-xl);
+  }
+}
