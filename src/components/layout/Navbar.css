@@ -19,8 +19,21 @@
   box-shadow: 0 1px 8px rgba(23, 29, 26, 0.06);
 }
 
+.navbar--mobile-open {
+  background-color: rgba(243, 241, 234, 0.98);
+  box-shadow: 0 1px 8px rgba(23, 29, 26, 0.06);
+}
+
 [data-theme="dark"] .navbar--scrolled {
   background-color: rgba(17, 22, 20, 0.85);
+}
+
+[data-theme="dark"] .navbar--mobile-open {
+  background-color: rgba(17, 22, 20, 0.98);
+}
+
+body.nav-lock {
+  overflow: hidden;
 }
 
 .navbar__inner {
@@ -80,9 +93,14 @@
 /* --- Mobile Toggle --- */
 .navbar__toggle {
   display: none;
-  padding: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
   border-radius: var(--radius-md);
   color: var(--color-text-primary);
+  touch-action: manipulation;
   transition: background-color var(--transition-base);
 }
 
@@ -100,6 +118,28 @@
   background-color: var(--color-bg-main);
   z-index: 99;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  contain: paint;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(0, -8px, 0);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 0s linear 180ms;
+  will-change: opacity, transform;
+}
+
+.navbar__mobile--open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
 }
 
 [data-theme="dark"] .navbar__mobile {
@@ -114,12 +154,15 @@
 }
 
 .navbar__mobile-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
   font-size: var(--text-lg);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
+  touch-action: manipulation;
   transition: color var(--transition-base), background-color var(--transition-base);
 }
 
@@ -141,5 +184,11 @@
 
   .navbar__toggle {
     display: flex;
+  }
+
+  .navbar--scrolled,
+  .navbar--mobile-open {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
