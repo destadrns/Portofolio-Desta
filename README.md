@@ -4,6 +4,8 @@ Repository ini berisi source code portfolio pribadi saya, Desta Adriyan Saputra.
 
 Fokus utamanya sederhana: menampilkan pekerjaan dan proses belajar saya sebagai mahasiswa Informatika yang tertarik pada web development, data analytics, dan AI.
 
+Live website: https://portofolio-desta.vercel.app
+
 ## Isi Website
 
 - Profil singkat dan fokus belajar
