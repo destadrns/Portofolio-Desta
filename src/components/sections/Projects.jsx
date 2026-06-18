@@ -131,12 +131,12 @@ export default function Projects() {
       </div>
 
       {/* Filter Buttons */}
-      <div className="projects__filters" role="tablist" aria-label="Filter proyek">
+      <div className="projects__filters" role="group" aria-label="Filter proyek">
         {filters.map((f) => (
           <button
             key={f.value}
-            role="tab"
-            aria-selected={activeFilter === f.value}
+            type="button"
+            aria-pressed={activeFilter === f.value}
             className={`projects__filter ${activeFilter === f.value ? 'projects__filter--active' : ''}`}
             onClick={() => setActiveFilter(f.value)}
           >
@@ -146,7 +146,7 @@ export default function Projects() {
       </div>
 
       {/* Project Cards */}
-      <div className="projects__grid" role="tabpanel">
+      <div className="projects__grid">
         <AnimatePresence mode="popLayout">
           {filteredProjects.map((project) => {
             const VisualComponent = visualComponents[project.id];
