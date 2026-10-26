@@ -8,8 +8,8 @@ export const sections: SectionHead[] = [
     label: { id: 'Profil singkat', en: 'Short profile' },
     title: { id: 'Tentang Saya', en: 'About Me' },
     purpose: {
-      id: 'Siapa saya, apa yang sedang saya dalami, dan bagaimana saya mengerjakan project.',
-      en: "Who I am, what I'm currently learning, and how I approach projects.",
+      id: 'Dari alur pengguna sampai API, database, dan evaluasi model.',
+      en: 'From user flows to APIs, databases, and model evaluation.',
     },
   },
   {
@@ -17,8 +17,8 @@ export const sections: SectionHead[] = [
     label: { id: 'Karya pilihan', en: 'Selected work' },
     title: { id: 'Proyek', en: 'Projects' },
     purpose: {
-      id: 'Lima project yang paling mewakili kemampuan saya: tiga aplikasi web full-stack, satu aplikasi berbasis AI, dan satu model machine learning.',
-      en: 'Five projects that best represent my skills: three full-stack web applications, one AI-based application, and one machine learning model.',
+      id: 'Tiga aplikasi web full-stack, satu asisten AI, dan satu model prediksi. Lihat alur, kontribusi, dan bukti teknisnya.',
+      en: 'Three full-stack web apps, an AI assistant, and a prediction model. Explore the workflows, my contributions, and the technical evidence.',
     },
   },
   {
@@ -91,5 +91,16 @@ export const ui = {
   copyEmail: { id: 'Salin Email', en: 'Copy Email' },
   copied: { id: 'Tersalin', en: 'Copied' },
   copiedStatus: { id: 'Email berhasil disalin.', en: 'Email copied.' },
+  copyFailed: {
+    id: 'Salin otomatis gagal. Pilih alamat email di atas untuk menyalinnya secara manual, atau gunakan Kirim Email.',
+    en: 'Automatic copy failed. Select the email address above to copy it manually, or use Send Email.',
+  },
+  viewScreenshot: { id: 'Perbesar tangkapan layar', en: 'Open full screenshot' },
+  projectDetails: { id: 'Jelajahi alur & bukti teknis', en: 'Explore workflow & technical evidence' },
+  contribution: { id: 'Kontribusi saya', en: 'My contribution' },
+  workflow: { id: 'Alur penggunaan', en: 'User workflow' },
+  workflowNote: { id: 'Panduan berdasarkan dokumentasi proyek.', en: 'A walkthrough based on the project documentation.' },
+  viewEvidence: { id: 'Lihat bukti & panduan menjalankan', en: 'View evidence & setup guide' },
+  projectIndex: { id: 'Langsung ke proyek', en: 'Jump to a project' },
   socialLabel: { id: 'Media sosial', en: 'Social media' },
 } satisfies Record<string, Localized>;

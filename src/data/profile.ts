@@ -9,10 +9,10 @@ export const profile: Profile = {
   location: 'Yogyakarta, Indonesia',
   hero: {
     greeting: { id: 'Halo, saya Desta', en: "Hi, I'm Desta" },
-    role: 'Full-Stack Developer & Machine Learning',
+    role: 'Full-Stack Developer · AI/ML Projects',
     intro: {
-      id: 'Saya mahasiswa Informatika yang tertarik pada pengembangan web, analisis data, dan pemodelan berbasis AI. Saya suka membangun tampilan yang rapi, responsif, dan mencoba memahami bagaimana data bisa diolah menjadi insight yang berguna.',
-      en: "I'm an Informatics student interested in web development, data analysis, and AI-based modeling. I enjoy building clean, responsive interfaces and figuring out how data can be turned into useful insight.",
+      id: 'Mahasiswa Informatika Amikom Yogyakarta, IPK 3,96. Saya membangun aplikasi web full-stack dan proyek AI/ML, dari e-commerce sampai sistem operasional manufaktur.',
+      en: 'Informatics student at Amikom Yogyakarta, GPA 3.96. I build full-stack web apps and AI/ML projects, from e-commerce to manufacturing operations.',
     },
     // Added 2026-10-22 at Desta's request (animate pass).
     openTo: {
@@ -23,16 +23,12 @@ export const profile: Profile = {
   about: {
     paragraphs: [
       {
-        id: 'Saya adalah mahasiswa Informatika yang sedang membangun kemampuan di bidang web development, data analytics, dan AI. Dalam proses belajar, saya cukup sering mencoba berbagai project kecil maupun project berbasis data untuk memahami bagaimana sebuah ide bisa diubah menjadi sesuatu yang lebih terstruktur dan berguna.',
-        en: "I'm an Informatics student building my skills in web development, data analytics, and AI. While learning, I often take on small projects as well as data-driven ones to understand how an idea can be turned into something more structured and useful.",
+        id: 'Saya mengerjakan antarmuka, REST API, dan database, secara mandiri maupun dalam tim Scrum. Di SIMO Mugi Jaya, saya ikut meriset alur klien dan membangun sistem dari produksi sampai pengiriman.',
+        en: 'I work on interfaces, REST APIs, and databases, independently and in a Scrum team. For SIMO Mugi Jaya, I helped research the client workflow and build an operations system from production to delivery.',
       },
       {
-        id: 'Saat mengerjakan project, saya biasanya memulai dari layout dan alur utama terlebih dahulu, lalu memecah fitur menjadi bagian-bagian kecil agar prosesnya lebih terarah. Saya suka membuat tampilan yang rapi dan responsif, tetapi akhir-akhir ini saya juga semakin tertarik mendalami data analytics, modeling, dan penggunaan AI dengan Python serta Jupyter Notebook.',
-        en: "When working on a project, I usually start with the layout and main flow, then break features into smaller parts so the process stays focused. I like building clean, responsive interfaces, but lately I've grown more interested in data analytics, modeling, and using AI with Python and Jupyter Notebook.",
-      },
-      {
-        id: 'Bagi saya, project bukan hanya tentang membuat sesuatu yang berjalan, tetapi juga tentang memahami masalah, merapikan struktur, dan memperbaiki hasilnya sedikit demi sedikit.',
-        en: "For me, a project isn't only about making something that runs, but also about understanding the problem, tidying up the structure, and improving the result bit by bit.",
+        id: 'Saya memulai dari masalah dan alur pengguna, memecah fitur menjadi bagian kecil, lalu memeriksa hasilnya. Untuk proyek data, saya memakai Python dan Jupyter Notebook, termasuk evaluasi prediksi umur baterai dengan data NASA.',
+        en: 'I start with the problem and user flow, break features into small parts, then check the results. For data projects, I use Python and Jupyter Notebook, including battery lifespan evaluation with NASA data.',
       },
     ],
     cardRole: 'Full-Stack Developer & Informatics Student',

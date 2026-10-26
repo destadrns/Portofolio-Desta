@@ -45,6 +45,13 @@ audit*/
 screenshots/
 scratch/
 tmp/
+output/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+.playwright-cli/
 
 # Editor and OS files
 .vscode/*

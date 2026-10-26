@@ -64,11 +64,28 @@ function setVar(el: HTMLElement, name: string, value: number) {
   if (el.style.getPropertyValue(name) !== v) el.style.setProperty(name, v);
 }
 
+function fragmentTarget() {
+  try {
+    return document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+  } catch {
+    return null; // Malformed URL fragments must not prevent the portfolio from opening.
+  }
+}
+
 // One loop for every scroll-linked value: reading progress, header state, the hero's exit (--out),
 // each project card's curtain (--enter) and image drift (--pass), and the timelines' fill, lit dots,
 // and one-time entries. All layout reads happen first, then all writes, on the element that uses
 // the value.
 export function useScrollMotion(enabled: boolean, smooth: boolean) {
+  useEffect(() => {
+    let active = true;
+    document.fonts.ready.then(() => {
+      if (!active || !window.location.hash) return;
+      fragmentTarget()?.scrollIntoView({ behavior: 'instant' });
+    });
+    return () => { active = false; };
+  }, []);
+
   useEffect(() => {
     const html = document.documentElement;
     html.classList.toggle('motion', enabled);
@@ -213,7 +230,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
             update();
             quietUntil = time + 150;
           }
-          frame = lenis.isScrolling || time < quietUntil ? requestAnimationFrame(tick) : 0;
+          frame = lenis.isScrolling === 'smooth' || time < quietUntil ? requestAnimationFrame(tick) : 0;
         };
         wake = () => {
           quietUntil = performance.now() + 150;
@@ -229,6 +246,27 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
         listen('wheel', wake);
         listen('keydown', wake);
         listen('pointerdown', wake);
+
+        // Native jumps and translation can invalidate Lenis's running animation and cached height.
+        const syncScroll = () => {
+          lenis.stop();
+          lenis.resize();
+          lenis.start();
+          dirty = true;
+          wake();
+        };
+        window.addEventListener('portfolio:language-change', syncScroll);
+        cleanup.push(() => window.removeEventListener('portfolio:language-change', syncScroll));
+
+        const restoreFragment = () => {
+          const target = fragmentTarget();
+          if (!target) return;
+          syncScroll();
+          lenis.scrollTo(target, { immediate: true, force: true });
+        };
+        document.fonts.ready.then(() => { if (!stopped) restoreFragment(); });
+        window.addEventListener('hashchange', restoreFragment);
+        cleanup.push(() => window.removeEventListener('hashchange', restoreFragment));
 
         // In-page links glide through Lenis (it honors scroll-padding-top). Focus moves to the
         // target as a native fragment jump would, so the skip link and keyboard users land in place.

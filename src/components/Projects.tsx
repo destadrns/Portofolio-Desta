@@ -95,18 +95,25 @@ function ProjectCard({ project }: { project: Project }) {
         </ul>
       </header>
       <figure className="pcard__shot">
-        <div className="pcard__frame">
-          <img
-            src={sized(project.image, 1600)}
-            srcSet={WIDTHS.map((w) => `${sized(project.image, w)} ${w}w`).join(', ')}
-            sizes={SHOT_SIZES}
-            alt={t(project.imageAlt)}
-            width={1760}
-            height={890}
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
+        <ExternalLink
+          className="pcard__image-link"
+          href={sized(project.image, 1600)}
+          label={`${t(ui.viewScreenshot)}: ${project.name}`}
+        >
+          <div className="pcard__frame">
+            <img
+              src={sized(project.image, 1600)}
+              srcSet={WIDTHS.map((w) => `${sized(project.image, w)} ${w}w`).join(', ')}
+              sizes={SHOT_SIZES}
+              alt={t(project.imageAlt)}
+              width={1760}
+              height={890}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <span className="pcard__image-label">{t(ui.viewScreenshot)}</span>
+        </ExternalLink>
       </figure>
       <div className="pcard__blocks">
         {blocks.map((block) => (
@@ -116,9 +123,23 @@ function ProjectCard({ project }: { project: Project }) {
           >
             <h4 className="block__label">{t(block.label)}</h4>
             {block.body}
+            {block.highlight && <p className="pcard__evidence">{t(project.evidence)}</p>}
           </div>
         ))}
       </div>
+      <details className="pcard__details">
+        <summary>{t(ui.projectDetails)}</summary>
+        <h4 className="block__label">{t(ui.contribution)}</h4>
+        <p className="pcard__contribution">{t(project.contribution)}</p>
+        <h4 className="block__label">{t(ui.workflow)}</h4>
+        <p className="pcard__flow-note">{t(ui.workflowNote)}</p>
+        <ol className="project-flow">
+          {project.flow.map((step) => <li key={step.en}>{t(step)}</li>)}
+        </ol>
+        <ExternalLink className="link" href={project.evidenceLink} label={`${t(ui.viewEvidence)}: ${project.name}`}>
+          {t(ui.viewEvidence)}
+        </ExternalLink>
+      </details>
       <footer className="pcard__foot">
         <ul className="chips" aria-label={t(ui.stack)}>
           {project.stack.map((tech) => (
@@ -146,6 +167,11 @@ export function Projects() {
     <section id="projects" className="section section--dark" aria-labelledby="projects-title">
       <div className="wrap">
         <SectionHead id="projects" />
+        <nav className="project-index" aria-label={t(ui.projectIndex)}>
+          <ul>
+            {projects.map((project) => <li key={project.id}><a href={`#${project.id}`}>{project.name}</a></li>)}
+          </ul>
+        </nav>
         <ol className="pcards" role="list">
           {projects.map((project) => (
             <li key={project.id}>

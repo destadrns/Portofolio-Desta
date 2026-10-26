@@ -13,6 +13,10 @@ export type Project = {
   problem: Localized;
   solution: Localized;
   highlight: Localized;
+  contribution: Localized;
+  flow: Localized[];
+  evidence: Localized;
+  evidenceLink: string;
   stack: string[];
   image: string;
   imageAlt: Localized;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ui } from '../data/ui';
 import type { Lang, Localized } from '../types';
 
@@ -28,7 +28,21 @@ type LanguageValue = {
 const LanguageContext = createContext<LanguageValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>(initialLang);
+  const [lang, updateLang] = useState<Lang>(initialLang);
+  const scrollRef = useRef<number | null>(null);
+  const setLang = (next: Lang) => {
+    if (next === lang) return;
+    scrollRef.current = window.scrollY;
+    updateLang(next);
+  };
+
+  useLayoutEffect(() => {
+    if (scrollRef.current === null) return;
+    const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo({ top: Math.min(scrollRef.current, max), behavior: 'instant' });
+    scrollRef.current = null;
+    window.dispatchEvent(new Event('portfolio:language-change'));
+  }, [lang]);
 
   useEffect(() => {
     document.documentElement.lang = lang;

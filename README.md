@@ -22,6 +22,19 @@ npm run build     # type check, then production build into dist/
 npm run preview   # serve the production build locally
 ```
 
+## Browser checks
+
+Install the test browser once, then run the production-build smoke tests:
+
+```bash
+npx playwright install chromium
+npm test
+```
+
+The checks cover direct links, the landscape menu, language changes, clipboard failures, image links,
+project workflows, responsive layouts, reduced motion, and the no-JavaScript contact fallback.
+CI runs the same checks after building.
+
 The public site address used in link previews and the canonical URL comes from `VITE_SITE_URL` in `.env.production`.
 
 ## Editing content

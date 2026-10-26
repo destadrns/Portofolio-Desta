@@ -13,28 +13,35 @@ async function copyText(text: string): Promise<boolean> {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
+    const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const area = document.createElement('textarea');
     area.value = text;
     area.setAttribute('readonly', '');
     area.style.position = 'fixed';
     area.style.opacity = '0';
-    document.body.appendChild(area);
-    area.select();
-    const ok = document.execCommand('copy');
-    area.remove();
-    return ok;
+    try {
+      document.body.appendChild(area);
+      area.focus();
+      area.select();
+      return document.execCommand('copy');
+    } catch {
+      return false;
+    } finally {
+      area.remove();
+      focused?.focus({ preventScroll: true });
+    }
   }
 }
 
 export function Contact() {
   const { t } = useLang();
   const panelRef = useReveal<HTMLDivElement>();
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<boolean | null>(null);
   const { contact } = profile;
 
   useEffect(() => {
     if (!copied) return;
-    const timer = window.setTimeout(() => setCopied(false), 2000);
+    const timer = window.setTimeout(() => setCopied(null), 2000);
     return () => window.clearTimeout(timer);
   }, [copied]);
 
@@ -75,7 +82,7 @@ export function Contact() {
               </button>
             </div>
             <p className="contact-panel__status" role="status">
-              {copied ? t(ui.copiedStatus) : ''}
+              {copied === false ? t(ui.copyFailed) : copied ? t(ui.copiedStatus) : ''}
             </p>
             <ul className="social" aria-label={t(ui.socialLabel)}>
               {social.map(({ href, label, Icon }) => (

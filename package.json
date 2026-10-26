@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "test": "npm run build && npm run test:browser",
+    "test:browser": "node --test tests/portfolio.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,6 +19,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "playwright": "^1.64.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.3"
   },
