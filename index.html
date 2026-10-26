@@ -1,61 +1,65 @@
-<!DOCTYPE html>
-<html lang="id">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- SEO -->
-    <title>Desta Adriyan Saputra — Personal Portfolio</title>
+    <title>Desta Adriyan Saputra — Portfolio</title>
     <meta
       name="description"
-      content="Portofolio pribadi Desta Adriyan Saputra yang menampilkan project web development, skill, pengalaman, aktivitas, dan kontak profesional."
+      content="I build full-stack web applications and machine learning models."
     />
-    <meta name="author" content="Desta Adriyan Saputra" />
-    <meta name="theme-color" content="#F3F1EA" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Archivo sets every line of the first view; fetch it with the HTML. -->
+    <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Portofolio Desta" />
-    <meta property="og:title" content="Desta Adriyan Saputra — Personal Portfolio" />
+    <!-- Link previews. The site address comes from VITE_SITE_URL in .env. -->
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
+    <meta property="og:site_name" content="Desta Adriyan Saputra" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="id_ID" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
+    <meta property="og:title" content="Desta Adriyan Saputra — Full-Stack Developer & Machine Learning" />
     <meta
       property="og:description"
-      content="Portofolio pribadi Desta Adriyan Saputra yang menampilkan project web development, skill, pengalaman, aktivitas, dan kontak profesional."
+      content="I build full-stack web applications and machine learning models."
     />
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image" content="%VITE_SITE_URL%/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta
-      property="og:image:alt"
-      content="Preview portofolio Desta Adriyan Saputra, Web Developer dan Data Analytics Enthusiast."
-    />
-    <meta property="og:locale" content="id_ID" />
-
-    <!-- Twitter / X -->
+    <meta property="og:image:alt" content="Desta Adriyan Saputra, Full-Stack Developer & Machine Learning, beside a screenshot of NOVAÉ." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Desta Adriyan Saputra — Personal Portfolio" />
-    <meta
-      name="twitter:description"
-      content="Portofolio pribadi Desta Adriyan Saputra yang menampilkan project web development, skill, pengalaman, aktivitas, dan kontak profesional."
-    />
-    <meta name="twitter:image" content="/og-image.png" />
-    <meta
-      name="twitter:image:alt"
-      content="Preview portofolio Desta Adriyan Saputra, Web Developer dan Data Analytics Enthusiast."
-    />
 
-    <!-- Fonts: Geist + Space Grotesk -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Desta Adriyan Saputra",
+        "jobTitle": "Full-Stack Developer & Machine Learning",
+        "url": "%VITE_SITE_URL%/",
+        "image": "%VITE_SITE_URL%/img/profile.webp",
+        "email": "mailto:dstaasptra@gmail.com",
+        "alumniOf": {
+          "@type": "CollegeOrUniversity",
+          "name": "Universitas Amikom Yogyakarta"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Yogyakarta",
+          "addressCountry": "ID"
+        },
+        "sameAs": [
+          "https://github.com/destadrns",
+          "https://linkedin.com/in/dstaasptra",
+          "https://www.instagram.com/dstaadrns"
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

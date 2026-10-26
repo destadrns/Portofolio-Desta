@@ -1,63 +1,35 @@
 # Portofolio Desta
 
-Repository ini berisi source code portfolio pribadi saya, Desta Adriyan Saputra. Website ini dibuat untuk merangkum profil singkat, skill, project, pengalaman, pendidikan, dan kontak dalam satu halaman yang rapi.
+One-page CV and portfolio of Desta Adriyan Saputra, in Indonesian and English. Built with React, TypeScript, and Vite.
 
-Fokus utamanya sederhana: menampilkan pekerjaan dan proses belajar saya sebagai mahasiswa Informatika yang tertarik pada web development, data analytics, dan AI.
+Live: https://portofolio-desta.vercel.app
 
-Live website: https://portofolio-desta.vercel.app
+## Run locally
 
-## Isi Website
-
-- Profil singkat dan fokus belajar
-- Daftar skill dan tools yang sering digunakan
-- Kumpulan project web, data, big data, dan machine learning
-- Pengalaman serta aktivitas yang relevan
-- Riwayat pendidikan
-- Kontak dan social link
-
-## Tech Stack
-
-- React
-- Vite
-- CSS custom
-- Framer Motion
-- Lucide React
-
-## Menjalankan Project
+Requires Node.js 22 or newer.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Untuk membuat production build:
+The dev server prints a local address (by default http://localhost:5173). Add `?lang=en` or `?lang=id` to the URL to open a specific language.
+
+## Build
 
 ```bash
-npm run build
+npm run build     # type check, then production build into dist/
+npm run preview   # serve the production build locally
 ```
 
-Untuk mengecek lint:
+The public site address used in link previews and the canonical URL comes from `VITE_SITE_URL` in `.env.production`.
 
-```bash
-npm run lint
-```
+## Editing content
 
-## Struktur Singkat
+All text lives in `src/data/`, with each string stored in both languages as `{ id, en }`:
 
-```text
-src/
-  components/
-    common/
-    layout/
-    sections/
-  data/
-  styles/
-  assets/
-public/
-```
+- `profile.ts`: profile, experience, education, skills, contact
+- `projects.ts`: featured and other projects
+- `ui.ts`: navigation, buttons, labels, page title, and meta description
 
-Konten project, skill, pendidikan, dan aktivitas dipisah di folder `src/data` supaya lebih mudah diperbarui tanpa perlu banyak menyentuh komponen UI.
-
-## Catatan
-
-Website ini masih akan terus saya rapikan seiring bertambahnya project dan pengalaman baru.
+Project screenshots are in `public/img/` and the CV PDF in `public/cv/`.
