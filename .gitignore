@@ -1,3 +1,15 @@
+# Dependencies and build output
+node_modules
+dist
+dist-ssr
+.vercel
+
+# Environment: only .env.production (public site URL) is committed
+.env
+.env.*
+!.env.production
+*.local
+
 # Logs
 logs
 *.log
@@ -5,25 +17,43 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# AI agent and design-tool configuration
+CLAUDE.md
+.claude/
+AGENTS.md
+GEMINI.md
+.cursor/
+.cursorrules
+.windsurfrules
+.github/copilot-instructions.md
+.impeccable/
+PRODUCT.md
+DESIGN.md
 
-# Project planning notes
+# Planning documents
 PRD.md
+*.prd.md
+docs/
 
-# Editor directories and files
+# Source assets (original images, full font files)
+assets-src/
+
+# Audit reports, test screenshots, temporary test scripts
+*.audit.md
+audit*/
+screenshots/
+scratch/
+tmp/
+
+# Editor and OS files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-
-.vercel

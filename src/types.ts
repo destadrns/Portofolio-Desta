@@ -1,0 +1,79 @@
+export type Lang = 'id' | 'en';
+
+export type Localized = { id: string; en: string };
+
+export type Project = {
+  id: string;
+  number: string;
+  name: string;
+  kind: Localized;
+  year: number;
+  role: Localized;
+  tagline: Localized;
+  problem: Localized;
+  solution: Localized;
+  highlight: Localized;
+  stack: string[];
+  image: string;
+  imageAlt: Localized;
+  link: string;
+};
+
+export type OtherProject = {
+  name: string;
+  description: Localized;
+  stack: string[];
+  link: string;
+};
+
+export type TimelineItem = {
+  period: Localized;
+  title: Localized;
+  role: Localized;
+  text: Localized;
+  details?: Localized[];
+};
+
+export type SkillGroup = {
+  name: Localized;
+  description: Localized;
+  items: string[];
+};
+
+export type Fact = {
+  value: Localized;
+  label: Localized;
+};
+
+export type SectionHead = {
+  id: string;
+  label: Localized;
+  title: Localized;
+  purpose: Localized;
+};
+
+export type Profile = {
+  name: string;
+  photo: string;
+  cv: string;
+  location: string;
+  hero: {
+    greeting: Localized;
+    role: string;
+    intro: Localized;
+    openTo: Localized;
+  };
+  about: {
+    paragraphs: Localized[];
+    cardRole: string;
+    facts: Fact[];
+    focus: string[];
+  };
+  contact: {
+    email: string;
+    github: string;
+    linkedin: string;
+    instagram: string;
+    note: Localized;
+  };
+};

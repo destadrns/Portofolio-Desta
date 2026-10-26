@@ -1,0 +1,97 @@
+/* Design tokens. One place for color, type, spacing, shape, and motion.
+   Archivo for headings and paragraphs; JetBrains Mono only for small labels and years.
+   Contrast ratios measured against white. */
+
+@font-face {
+  font-family: 'Archivo';
+  /* Subset 2026-10-26: Latin, Latin-1, and the punctuation the copy uses; weights 400-700 only,
+     width fixed at 100. The full file is assets-src/archivo-latin-full.woff2. */
+  src: url('/fonts/archivo-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  /* Palette: midnight and brass (2026-10-22). These are the only color values in the project. */
+  --midnight: #0b1220;        /* ground of Hero, Projects, Contact, and the header */
+  --midnight-raised: #131c2e; /* cards on a dark ground */
+  --midnight-line: #24304a;   /* lines and frames on a dark ground (decorative, 1.4:1) */
+  --mist: #f3f5f8;            /* ground of About, Experience, Education, Skills */
+  --paper: #ffffff;           /* cards on a light ground */
+  --ink: #141b2b;             /* main text on light, 15.7:1 on mist */
+  --ink-muted: #5a6577;       /* secondary text on light, 5.4:1 on mist */
+  --frost: #e8ecf3;           /* main text on dark, 15.8:1 on midnight; also hairlines on light (owner choice) */
+  --frost-muted: #9aa6ba;     /* secondary text on dark, 6.9:1 on raised */
+  --brass: #d9a85b;           /* the one accent, dark grounds only: 8.65:1 on midnight */
+  --brass-deep: #8a5a1c;      /* the accent as text or line on light grounds: 5.4:1 on mist */
+
+  /* Semantic roles, light ground by default. Dark sections remap them (sections.css, Grounds). */
+  --bg: var(--mist);
+  --surface: var(--paper);
+  --chip-bg: var(--mist);
+  --text: var(--ink);
+  --text-2: var(--ink-muted);
+  --line: var(--frost);
+  --accent: var(--brass-deep);
+  --accent-hover: var(--ink);
+  --on-accent: var(--paper);  /* paper on brass-deep 5.9:1 */
+  --control-line: var(--ink-muted); /* outline of ghost buttons, ≥3:1 */
+
+  /* Type: desktop / phone sizes from the approved brief */
+  --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Menlo, monospace;
+  --fs-hero: clamp(2rem, 1.45rem + 2.4vw, 3rem);           /* 32 → 48 */
+  --fs-section: clamp(1.5rem, 1.27rem + 1vw, 2rem);        /* 24 → 32 */
+  --fs-project: clamp(1.25rem, 1.14rem + 0.5vw, 1.5rem);   /* 20 → 24 */
+  --fs-role: clamp(1.125rem, 1.07rem + 0.25vw, 1.25rem);   /* 18 → 20 */
+  --fs-lead: clamp(1rem, 0.94rem + 0.25vw, 1.125rem);      /* 16 → 18 */
+  --fs-name: clamp(1.0625rem, 1.03rem + 0.12vw, 1.125rem); /* 17 → 18 */
+  --fs-body: clamp(1rem, 0.97rem + 0.12vw, 1.0625rem);     /* 16 → 17 */
+  --fs-meta: 0.875rem;                                     /* 14 */
+  --fs-label: clamp(0.75rem, 0.73rem + 0.08vw, 0.8125rem); /* 12 → 13 */
+  --fs-figure: clamp(1.75rem, 1.64rem + 0.5vw, 2rem);      /* 28 → 32, max 36 */
+  --leading-body: 1.6;
+  --leading-tight: 1.2;
+  --measure: 68ch;
+
+  /* Spacing: multiples of 4px */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --section: clamp(64px, 8vw, 112px);
+  --container: 1200px;
+  --touch: 44px;
+
+  /* Shape. No shadow tokens on purpose. */
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --radius-chip: 999px;
+  --border: 1px;
+  --header-h: 64px;
+  /* Motion: one curve, three durations (200–700 ms). Nothing loops. */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-1: 200ms;   /* feedback: hover, press, focus, language fade, copy */
+  --dur-2: 400ms;   /* active-nav slide */
+  --dur-3: 700ms;   /* every one-time entrance, stack arrival */
+  --rise: 28px;     /* entrance travel */
+}
+
+@media (max-width: 767px) {
+  :root {
+    --rise: 16px;
+  }
+}

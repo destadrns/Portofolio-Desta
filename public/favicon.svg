@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
-  <title id="title">Desta Adriyan Saputra</title>
-  <desc id="desc">Monogram DA untuk portofolio Desta Adriyan Saputra</desc>
-  <rect width="64" height="64" rx="16" fill="#171D1A"/>
-  <path fill="#DADDD5" d="M16 14h14.6c11.2 0 18.4 7.1 18.4 18s-7.2 18-18.4 18H16V14Zm14.1 27.4c6 0 9.7-3.5 9.7-9.4s-3.7-9.4-9.7-9.4h-5.3v18.8h5.3Z"/>
-  <path fill="#8FA898" d="M43.2 50 34 14h8.7L52 50h-8.8Z" opacity=".95"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0b1220"/><path d="M11 8.5h4.5a7.5 7.5 0 0 1 0 15H11z" fill="none" stroke="#d9a85b" stroke-width="3.2" stroke-linejoin="round"/></svg>
