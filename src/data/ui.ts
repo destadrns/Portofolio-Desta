@@ -23,7 +23,7 @@ export const sections: SectionHead[] = [
   },
   {
     id: 'experience',
-    label: { id: 'Pengalaman', en: 'Experience' },
+    label: { id: 'Karier', en: 'Career' },
     title: { id: 'Pengalaman', en: 'Experience' },
     purpose: {
       id: 'Pengalaman profesional yang melatih ketelitian saya dalam mengolah data dan bekerja sesuai standar instansi.',
