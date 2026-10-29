@@ -177,7 +177,33 @@ test('Identity, email and CV remain available without JavaScript', async () => {
   await page.goto(origin);
   assert.equal(await page.getByRole('heading', { name: 'Desta Adriyan Saputra' }).count(), 1);
   assert.equal(await page.locator('a[href="mailto:dstaasptra@gmail.com"]').count(), 1);
-  const pdf = await page.request.get(new URL(await page.getByRole('link', { name: 'CV / Resume (PDF)' }).getAttribute('href'), origin).href);
-  assert.equal(pdf.status(), 200);
-  assert.match(pdf.headers()['content-type'], /application\/pdf/);
+  for (const name of ['CV Bahasa Indonesia (PDF)', 'CV English (PDF)']) {
+    const pdf = await page.request.get(new URL(await page.getByRole('link', { name }).getAttribute('href'), origin).href);
+    assert.equal(pdf.status(), 200);
+    assert.match(pdf.headers()['content-type'], /application\/pdf/);
+  }
+});
+
+test('New visitors get Indonesian; the toggle choice persists and drives the CV download', async () => {
+  await context.close();
+  context = await browser.newContext({ locale: 'en-US', viewport: { width: 1440, height: 900 } });
+  page = await context.newPage();
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(origin);
+  assert.equal(await page.locator('html').getAttribute('lang'), 'id');
+  assert.equal(await page.getByRole('heading', { level: 1 }).textContent(), 'Halo, saya Desta');
+  const main = page.locator('.cv--hero a').first();
+  assert.equal(await main.getAttribute('href'), './cv/CV_Desta_Adriyan_Saputra_ID.pdf');
+  assert.equal(await main.getAttribute('download'), 'CV_Desta_Adriyan_Saputra_ID.pdf');
+  assert.equal(await page.locator('.cv--hero .cv__other').getAttribute('href'), './cv/CV_Desta_Adriyan_Saputra_EN.pdf');
+  await page.locator('.lang-switch__button[lang="en"]').click();
+  await page.reload();
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+  assert.equal(await page.locator('.cv--hero a').first().getAttribute('download'), 'CV_Desta_Adriyan_Saputra_EN.pdf');
+  assert.equal(await page.locator('#experience .timeline__row').count(), 1);
+  assert.equal(await page.locator('.cert').count(), 6);
+  for (const file of ['ID', 'EN']) {
+    const pdf = await page.request.get(`${origin}/cv/CV_Desta_Adriyan_Saputra_${file}.pdf`);
+    assert.equal(pdf.status(), 200);
+  }
 });

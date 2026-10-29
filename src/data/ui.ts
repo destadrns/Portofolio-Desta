@@ -49,6 +49,15 @@ export const sections: SectionHead[] = [
     },
   },
   {
+    id: 'certifications',
+    label: { id: 'Kredensial', en: 'Credentials' },
+    title: { id: 'Sertifikasi', en: 'Certifications' },
+    purpose: {
+      id: 'Sertifikat dari Google, Cisco, dan bootcamp AI yang mendukung pengembangan aplikasi berbasis AI.',
+      en: 'Certificates from Google, Cisco, and an AI bootcamp that back my work on AI-powered applications.',
+    },
+  },
+  {
     id: 'contact',
     // Differs from the title on purpose (decided 2026-10-22).
     label: { id: 'Kontak', en: 'Contact' },
@@ -80,6 +89,11 @@ export const ui = {
   languageLabel: { id: 'Bahasa', en: 'Language' },
   newTab: { id: '(tab baru)', en: '(new tab)' },
   downloadCv: { id: 'Unduh CV', en: 'Download CV' },
+  // Accessible name of the main CV button; it starts with the visible text (WCAG 2.5.3).
+  downloadCvLabel: { id: 'Unduh CV (PDF, Bahasa Indonesia)', en: 'Download CV (PDF, English)' },
+  // The secondary link offers the other language, so its text is in that language.
+  cvOtherVersion: { id: 'English version (PDF)', en: 'Versi Bahasa Indonesia (PDF)' },
+  verify: { id: 'Verifikasi', en: 'Verify' },
   viewProjects: { id: 'Lihat Proyek', en: 'View Projects' },
   problem: { id: 'Masalah', en: 'Problem' },
   solution: { id: 'Solusi', en: 'Solution' },

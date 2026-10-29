@@ -1,11 +1,11 @@
-import type { Profile, SkillGroup, TimelineItem } from '../types';
+import type { Certification, Profile, SkillGroup, TimelineItem } from '../types';
 
-// Sources: the old portfolio (portofolio-desta.vercel.app, copied as written) and the CV (PRD Appendix A).
+// Sources: the old portfolio (copied as written) and the CV (PRD Appendix A).
 export const profile: Profile = {
   name: 'Desta Adriyan Saputra',
   photo: './img/profile.webp',
-  // Same English CV for both languages (PRD: "File CV").
-  cv: './cv/CV_Desta_Adriyan_Saputra_General.pdf',
+  // One CV per language; the download follows the active language (v2.1).
+  cv: { id: './cv/CV_Desta_Adriyan_Saputra_ID.pdf', en: './cv/CV_Desta_Adriyan_Saputra_EN.pdf' },
   location: 'Yogyakarta, Indonesia',
   hero: {
     greeting: { id: 'Halo, saya Desta', en: "Hi, I'm Desta" },
@@ -51,34 +51,33 @@ export const profile: Profile = {
   },
 };
 
-// Newest first. SIMO Mugi Jaya sits above the bootcamp (both 2026), confirmed by Desta on 2026-10-26.
+// One entry (v2.1). SIMO Mugi Jaya stays in Projects; the Gemini bootcamp moved to Certifications.
 export const experience: TimelineItem[] = [
   {
-    period: { id: '2026', en: '2026' },
-    title: { id: 'SIMO Mugi Jaya untuk CV Mugi Jaya', en: 'SIMO Mugi Jaya for CV Mugi Jaya' },
-    role: { id: 'Full-Stack Developer, tim Scrum 5 orang', en: 'Full-Stack Developer, 5-person Scrum team' },
-    text: {
-      id: 'Meriset alur produksi sampai pengiriman, lalu membangun frontend dan backend sistem operasional.',
-      en: 'Researched the flow from production to shipping, then built the frontend and backend of the operations system.',
+    period: { id: 'Agu 2026 – Okt 2026 · Yogyakarta', en: 'Aug 2026 – Oct 2026 · Yogyakarta' },
+    title: { id: 'Badan Pusat Statistik (BPS) Kota Yogyakarta', en: 'BPS-Statistics of Yogyakarta Municipality' },
+    role: {
+      id: 'Magang – Pengolahan Data Statistik & Dukungan Operasional',
+      en: 'Intern – Statistical Data Processing & Operations Support',
     },
-  },
-  {
-    period: { id: '2026', en: '2026' },
-    title: { id: 'Bootcamp Last Mile, Gemini AI Developer', en: 'Bootcamp Last Mile, Gemini AI Developer' },
-    role: { id: 'Peserta', en: 'Participant' },
-    text: {
-      id: 'Mengikuti bootcamp Gemini AI Developer sebagai bagian dari proses mendalami pemanfaatan AI dalam pengembangan aplikasi.',
-      en: 'Took part in the Gemini AI Developer bootcamp as part of going deeper into using AI in application development.',
-    },
-  },
-  {
-    period: { id: '2023–2024', en: '2023–2024' },
-    title: { id: 'AMCC (Amikom Computer Club)', en: 'AMCC (Amikom Computer Club)' },
-    role: { id: 'Anggota', en: 'Member' },
-    text: {
-      id: 'Bergabung dalam lingkungan organisasi teknologi untuk terus belajar, berdiskusi, dan mengembangkan kemampuan di bidang informatika.',
-      en: 'Joined a technology organization to keep learning, discussing, and growing my skills in informatics.',
-    },
+    points: [
+      {
+        id: 'Berkontribusi dalam pengolahan data statistik di BPS Kota Yogyakarta, melakukan entri dan validasi data dari dokumen sumber agar data akurat dan siap diolah lebih lanjut.',
+        en: "Contributed to statistical data processing at the municipal office of Indonesia's national statistics agency, entering and validating records from source documents so datasets were accurate and ready for further processing.",
+      },
+      {
+        id: 'Menerapkan pemeriksaan kualitas data dengan mencocokkan hasil entri terhadap dokumen sumber dan mengidentifikasi inkonsistensi untuk diperbaiki.',
+        en: 'Applied data-quality checks by cross-referencing entries against source documents and identifying inconsistencies for correction.',
+      },
+      {
+        id: 'Memberikan dukungan lintas fungsi kepada berbagai unit kerja, meliputi kompilasi data, pengelolaan dokumen, dan operasional administrasi.',
+        en: 'Provided cross-functional support to multiple work units, handling data compilation, document management, and administrative operations.',
+      },
+      {
+        id: 'Menangani beragam penugasan dari staf lintas tim, mengelola prioritas dan tenggat yang dinamis, serta cepat beradaptasi dengan standar kerja instansi pemerintah.',
+        en: 'Handled a wide range of assignments from staff across teams, managing shifting priorities and deadlines while adapting quickly to government work standards.',
+      },
+    ],
   },
 ];
 
@@ -136,5 +135,47 @@ export const skills: SkillGroup[] = [
       en: 'Processing data and building machine learning models with Python.',
     },
     items: ['Python', 'Jupyter Notebook', 'Pandas', 'NumPy', 'Scikit-learn', 'XGBoost', 'PySpark'],
+  },
+];
+
+// Names stay in English. Credly links open the public badge for verification.
+export const certifications: Certification[] = [
+  {
+    name: 'Google Gemini AI Developer',
+    issuer: 'SmartBridge Indonesia',
+    date: { id: 'Jul 2026', en: 'Jul 2026' },
+    description: {
+      id: 'Lulusan LastMile 2026 Bootcamp (Mar–Jun 2026): dasar LLM, prompt engineering, dan pengembangan aplikasi dengan Gemini API.',
+      en: 'LastMile 2026 Bootcamp graduate (Mar–Jun 2026): LLM fundamentals, prompt engineering, and Gemini API app development.',
+    },
+  },
+  {
+    name: 'Deploy Multi-Agent Architectures',
+    issuer: 'Google',
+    date: { id: 'Jun 2026', en: 'Jun 2026' },
+    verifyUrl: 'https://www.credly.com/badges/edd6cd4e-e18a-4302-bd10-668b14aa7461',
+  },
+  {
+    name: 'Develop GenAI Apps with Gemini and Streamlit Skill Badge',
+    issuer: 'Google',
+    date: { id: 'Jun 2026', en: 'Jun 2026' },
+    verifyUrl: 'https://www.credly.com/badges/c11b1e48-1b21-4f1a-a839-75472096f1f3',
+  },
+  {
+    name: 'Inspect Rich Documents with Gemini Multimodality and Multimodal RAG Skill Badge',
+    issuer: 'Google',
+    date: { id: 'Jun 2026', en: 'Jun 2026' },
+    verifyUrl: 'https://www.credly.com/badges/e5408755-2665-436f-bdf1-3521662e6cab',
+  },
+  {
+    name: 'Prompt Design in Vertex AI Skill Badge',
+    issuer: 'Google',
+    date: { id: 'Mar 2026', en: 'Mar 2026' },
+    verifyUrl: 'https://www.credly.com/badges/f8656181-a34e-46a3-9ab2-61f955edcaef',
+  },
+  {
+    name: 'Cisco Certified Network Associate',
+    issuer: 'Cisco',
+    date: { id: 'Apr 2025', en: 'Apr 2025' },
   },
 ];

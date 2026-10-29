@@ -1,7 +1,7 @@
 import { profile } from '../data/profile';
 import { ui } from '../data/ui';
 import { useLang } from '../i18n/LanguageContext';
-import { ExternalLink } from './ExternalLink';
+import { CvDownload } from './CvDownload';
 import { HeroStack } from './HeroStack';
 import { PinIcon } from './Icons';
 
@@ -32,9 +32,7 @@ export function Hero() {
             <a className="button button--primary" href="#projects">
               {t(ui.viewProjects)}
             </a>
-            <ExternalLink className="button button--ghost" href={profile.cv}>
-              {t(ui.downloadCv)}
-            </ExternalLink>
+            <CvDownload className="button button--ghost" place="hero" />
           </div>
         </div>
         <HeroStack />

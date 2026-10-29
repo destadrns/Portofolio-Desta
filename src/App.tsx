@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { About } from './components/About';
+import { Certifications } from './components/Certifications';
 import { Contact } from './components/Contact';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -43,6 +44,7 @@ export function App() {
         <Timeline id="experience" items={experience} />
         <Timeline id="education" items={education} />
         <Skills />
+        <Certifications />
         <Contact />
       </main>
     </>

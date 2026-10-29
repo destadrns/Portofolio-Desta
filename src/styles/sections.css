@@ -211,7 +211,7 @@ html[data-scrolled] .site-header::before,
   font-weight: 700;
 }
 
-.site-nav__cv {
+.cv--nav {
   justify-self: start;
 }
 
@@ -249,13 +249,21 @@ html[data-scrolled] .site-header::before,
 }
 
 @media (min-width: 80em) {
+  /* The inline bar has no room for the other-language link (decided 2026-10-29); it stays in the
+     menu panel, the hero right below, and Contact. */
+  .cv--nav .cv__other {
+    display: none;
+  }
+
   html[data-scrolled] .site-header {
     transform: translateY(-6px);
   }
 
   .site-header__inner {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    /* minmax(0, 1fr): if text is enlarged without the em breakpoint switching (a page-level zoom),
+       the links wrap inside their column instead of pushing ID/EN off the screen. */
+    grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: 'name nav lang';
     column-gap: var(--space-5);
     min-height: var(--header-h);
@@ -269,6 +277,7 @@ html[data-scrolled] .site-header::before,
   .site-header[data-open] .site-nav {
     grid-area: nav;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: var(--space-4);
@@ -282,6 +291,8 @@ html[data-scrolled] .site-header::before,
 
   .site-nav__list {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: var(--space-1);
   }
 
@@ -1137,6 +1148,24 @@ html:not(.motion) .timeline__dot::after {
   color: var(--text);
 }
 
+.timeline__period-part {
+  display: block;
+}
+
+.timeline__points {
+  display: grid;
+  gap: var(--space-2);
+  max-width: var(--measure);
+  margin-top: var(--space-3);
+  padding-left: 1.15em;
+  list-style: disc;
+  color: var(--text-2);
+}
+
+.timeline__points li::marker {
+  color: var(--accent);
+}
+
 @media (min-width: 768px) {
   .timeline__row {
     grid-template-columns: 150px minmax(0, 1fr);
@@ -1178,6 +1207,68 @@ html:not(.motion) .timeline__dot::after {
   .skill-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-5);
+  }
+}
+
+/* ---------- Certifications ---------- */
+
+/* Same card language as Skills: one column on phones, two from 768px, three from 1024px. The
+   Verify link sits at the bottom of each card so the links line up across a row. */
+.certs {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.cert {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+.cert__name {
+  font-size: var(--fs-name);
+  font-weight: 700;
+}
+
+.cert__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.cert__meta span:not(:last-child)::after {
+  content: '·';
+  margin-left: var(--space-3);
+}
+
+.cert__meta .mono {
+  font-size: var(--fs-label);
+}
+
+.cert__text {
+  color: var(--text-2);
+}
+
+.cert__verify {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+@media (min-width: 768px) {
+  .certs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .certs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1284,7 +1375,7 @@ html:not(.motion) .timeline__dot::after {
   height: 0.875em;
 }
 
-.contact-panel__cv {
+.cv--contact {
   justify-self: start;
 }
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ui } from '../data/ui';
 import type { Lang, Localized } from '../types';
 
@@ -6,7 +6,9 @@ const STORAGE_KEY = 'lang';
 
 const isLang = (value: string | null): value is Lang => value === 'id' || value === 'en';
 
-// Order: ?lang= link, then saved choice, then browser language (Indonesian -> id, else en).
+// Indonesian is the default for every new visitor, whatever the browser language. English comes
+// only from the toggle (saved choice) or an explicit ?lang=en link, such as the one in the
+// English CV. Computed before the first render, so the page never flashes the other language.
 function initialLang(): Lang {
   const fromUrl = new URLSearchParams(window.location.search).get('lang');
   if (isLang(fromUrl)) return fromUrl;
@@ -14,9 +16,9 @@ function initialLang(): Lang {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (isLang(saved)) return saved;
   } catch {
-    // Storage blocked: fall through to browser language.
+    // Storage blocked: fall back to the default.
   }
-  return navigator.language.toLowerCase().startsWith('id') ? 'id' : 'en';
+  return 'id';
 }
 
 type LanguageValue = {
@@ -44,7 +46,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     window.dispatchEvent(new Event('portfolio:language-change'));
   }, [lang]);
 
-  useEffect(() => {
+  // Layout effect: <html lang>, the title, and the description change before the browser paints.
+  useLayoutEffect(() => {
     document.documentElement.lang = lang;
     document.title = ui.pageTitle[lang];
     document.querySelector('meta[name="description"]')?.setAttribute('content', ui.metaDescription[lang]);

@@ -2,7 +2,7 @@
 
 One-page CV and portfolio of Desta Adriyan Saputra, in Indonesian and English. Built with React, TypeScript, and Vite.
 
-Live: https://portofolio-desta.vercel.app
+Live: https://destadrns.vercel.app
 
 ## Run locally
 
@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-The dev server prints a local address (by default http://localhost:5173). Add `?lang=en` or `?lang=id` to the URL to open a specific language.
+The dev server prints a local address (by default http://localhost:5173). The site opens in Indonesian for every new visitor; the ID/EN toggle switches to English and the choice is remembered. Add `?lang=en` or `?lang=id` to the URL to open a specific language.
 
 ## Build
 
@@ -45,4 +45,4 @@ All text lives in `src/data/`, with each string stored in both languages as `{ i
 - `projects.ts`: featured and other projects
 - `ui.ts`: navigation, buttons, labels, page title, and meta description
 
-Project screenshots are in `public/img/` and the CV PDF in `public/cv/`.
+Project screenshots are in `public/img/`. The CV comes in two files in `public/cv/`, `CV_Desta_Adriyan_Saputra_ID.pdf` and `CV_Desta_Adriyan_Saputra_EN.pdf`; the Download CV button serves the one matching the active language.

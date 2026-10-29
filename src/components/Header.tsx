@@ -3,7 +3,7 @@ import { profile } from '../data/profile';
 import { sections, ui } from '../data/ui';
 import { useLang } from '../i18n/LanguageContext';
 import type { Lang } from '../types';
-import { ExternalLink } from './ExternalLink';
+import { CvDownload } from './CvDownload';
 import { CloseIcon, MenuIcon } from './Icons';
 import { useMedia } from './motion';
 
@@ -159,9 +159,7 @@ export function Header() {
               </li>
             ))}
           </ul>
-          <ExternalLink className="button button--ghost button--sm site-nav__cv" href={profile.cv}>
-            {t(ui.downloadCv)}
-          </ExternalLink>
+          <CvDownload className="button button--ghost button--sm site-nav__cv" place="nav" />
         </nav>
         {wide && langSwitch}
       </div>

@@ -34,8 +34,17 @@ export type TimelineItem = {
   period: Localized;
   title: Localized;
   role: Localized;
-  text: Localized;
+  text?: Localized;
   details?: Localized[];
+  points?: Localized[]; // bulleted achievements, all of equal weight
+};
+
+export type Certification = {
+  name: string; // always in English
+  issuer: string;
+  date: Localized;
+  description?: Localized;
+  verifyUrl?: string;
 };
 
 export type SkillGroup = {
@@ -59,7 +68,7 @@ export type SectionHead = {
 export type Profile = {
   name: string;
   photo: string;
-  cv: string;
+  cv: Localized; // file path per language
   location: string;
   hero: {
     greeting: Localized;

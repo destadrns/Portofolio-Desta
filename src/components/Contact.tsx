@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { profile } from '../data/profile';
 import { ui } from '../data/ui';
 import { useLang } from '../i18n/LanguageContext';
+import { CvDownload } from './CvDownload';
 import { ExternalLink } from './ExternalLink';
 import { CheckIcon, CopyIcon, GithubIcon, InstagramIcon, LinkedInIcon, MailIcon } from './Icons';
 import { useReveal } from './motion';
@@ -94,9 +95,7 @@ export function Contact() {
                 </li>
               ))}
             </ul>
-            <ExternalLink className="contact-panel__cv link" href={profile.cv}>
-              {t(ui.downloadCv)}
-            </ExternalLink>
+            <CvDownload className="contact-panel__cv link" place="contact" />
           </div>
         </div>
       </div>

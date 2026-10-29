@@ -36,6 +36,12 @@ export const ExternalIcon = (p: IconProps) => (
   </Stroke>
 );
 
+export const DownloadIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+  </Stroke>
+);
+
 export const PinIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" />

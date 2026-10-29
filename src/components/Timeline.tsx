@@ -18,11 +18,27 @@ export function Timeline({ id, items }: Props) {
           {items.map((item) => (
             <li key={item.title.en + item.period.en} className="timeline__row">
               <span className="timeline__dot" aria-hidden="true" />
-              <p className="timeline__period">{t(item.period)}</p>
+              {/* "Aug 2026 – Oct 2026 · Yogyakarta": dates and place on their own lines in the narrow column. */}
+              <p className="timeline__period">
+                {t(item.period)
+                  .split(' · ')
+                  .map((part) => (
+                    <span key={part} className="timeline__period-part">
+                      {part}
+                    </span>
+                  ))}
+              </p>
               <div className="timeline__body">
                 <h3 className="timeline__title">{t(item.title)}</h3>
                 <p className="timeline__role">{t(item.role)}</p>
-                <p className="timeline__text">{t(item.text)}</p>
+                {item.text && <p className="timeline__text">{t(item.text)}</p>}
+                {item.points && (
+                  <ul className="timeline__points">
+                    {item.points.map((point) => (
+                      <li key={point.en}>{t(point)}</li>
+                    ))}
+                  </ul>
+                )}
                 {item.details && (
                   <ul className="timeline__details">
                     {item.details.map((detail) => (
