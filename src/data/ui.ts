@@ -26,8 +26,8 @@ export const sections: SectionHead[] = [
     label: { id: 'Pengalaman', en: 'Experience' },
     title: { id: 'Pengalaman & Aktivitas', en: 'Experience & Activities' },
     purpose: {
-      id: 'Beberapa aktivitas yang ikut membentuk cara saya belajar, membangun project, dan mengeksplorasi teknologi.',
-      en: 'Activities that have shaped how I learn, build projects, and explore technology.',
+      id: 'Pengalaman profesional yang melatih ketelitian saya dalam mengolah data dan bekerja sesuai standar instansi.',
+      en: 'Professional experience that sharpened my accuracy in handling data and working to institutional standards.',
     },
   },
   {
