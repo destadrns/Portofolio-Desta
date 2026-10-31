@@ -1272,6 +1272,129 @@ html:not(.motion) .timeline__dot::after {
   }
 }
 
+/* Google Cloud courses: thin rows, not cards. Phones stack the three themes as an accordion (each
+   heading is a button, closed by default); from 768px they sit in three always-open columns.
+   .courses__list never sets display, so its hidden attribute keeps working. */
+.courses {
+  margin-top: var(--space-8);
+}
+
+.courses__title {
+  font-size: var(--fs-project);
+  font-weight: 700;
+}
+
+.courses__intro {
+  max-width: var(--measure);
+  margin-top: var(--space-2);
+  color: var(--text-2);
+}
+
+.courses__groups {
+  display: grid;
+  margin-top: var(--space-5);
+  border-top: var(--border) solid var(--line);
+}
+
+.courses__group {
+  min-width: 0;
+  border-bottom: var(--border) solid var(--line);
+}
+
+.courses__theme {
+  font-size: var(--fs-name);
+  font-weight: 700;
+}
+
+.courses__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3) 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.courses__toggle > span:first-child {
+  flex: 1;
+}
+
+.courses__count {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.courses__toggle .icon {
+  transition: transform var(--dur-1) var(--ease);
+}
+
+.courses__toggle[aria-expanded='true'] .icon {
+  transform: rotate(180deg);
+}
+
+.courses__list {
+  padding-bottom: var(--space-2);
+}
+
+.course {
+  padding-top: var(--space-3);
+  border-top: var(--border) solid var(--line);
+}
+
+.course__name {
+  display: block;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.course__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--space-3);
+  font-size: var(--fs-meta);
+  color: var(--text-2);
+}
+
+.course__meta .mono {
+  font-size: var(--fs-label);
+}
+
+.course__verify {
+  font-size: var(--fs-meta);
+}
+
+@media (min-width: 768px) {
+  .courses__groups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-6);
+    border-top: 0;
+  }
+
+  .courses__group {
+    border-bottom: 0;
+  }
+
+  .courses__theme {
+    padding-bottom: var(--space-3);
+    border-bottom: var(--border) solid var(--line);
+  }
+
+  .courses__list .course:first-child {
+    border-top: 0;
+  }
+}
+
 /* ---------- Contact (dark ground) ---------- */
 
 .contact-panel {

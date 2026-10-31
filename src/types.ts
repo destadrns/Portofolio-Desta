@@ -47,6 +47,18 @@ export type Certification = {
   verifyUrl?: string;
 };
 
+// Google Skills completion badges, grouped by theme. The verify link is built from badgeId.
+export type CloudCourse = {
+  name: string; // always in English
+  date: Localized;
+  badgeId: string;
+};
+
+export type CloudCourseGroup = {
+  name: string; // always in English
+  courses: CloudCourse[];
+};
+
 export type SkillGroup = {
   name: Localized;
   description: Localized;

@@ -53,8 +53,8 @@ export const sections: SectionHead[] = [
     label: { id: 'Kredensial', en: 'Credentials' },
     title: { id: 'Sertifikasi', en: 'Certifications' },
     purpose: {
-      id: 'Sertifikat dari Google, Cisco, dan bootcamp AI yang mendukung pengembangan aplikasi berbasis AI.',
-      en: 'Certificates from Google, Cisco, and an AI bootcamp that back my work on AI-powered applications.',
+      id: 'Skill badge dan sertifikat dari Google, Cisco, dan SmartBridge, ditambah 13 kursus Google Cloud seputar AI agents, MLOps, dan responsible AI.',
+      en: 'Skill badges and certificates from Google, Cisco, and SmartBridge, plus 13 Google Cloud courses on AI agents, MLOps, and responsible AI.',
     },
   },
   {
@@ -94,6 +94,11 @@ export const ui = {
   // The secondary link offers the other language, so its text is in that language.
   cvOtherVersion: { id: 'English version (PDF)', en: 'Versi Bahasa Indonesia (PDF)' },
   verify: { id: 'Verifikasi', en: 'Verify' },
+  cloudCourses: { id: 'Kursus Google Cloud', en: 'Google Cloud Courses' },
+  cloudCoursesIntro: {
+    id: 'Completion badge dari Google Skills yang melengkapi skill badge di atas.',
+    en: 'Completion badges from Google Skills that complement the skill badges above.',
+  },
   viewProjects: { id: 'Lihat Proyek', en: 'View Projects' },
   problem: { id: 'Masalah', en: 'Problem' },
   solution: { id: 'Solusi', en: 'Solution' },

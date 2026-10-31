@@ -207,3 +207,28 @@ test('New visitors get Indonesian; the toggle choice persists and drives the CV 
     assert.equal(pdf.status(), 200);
   }
 });
+
+test('Google Cloud courses list 13 verifiable items and open as an accordion on phones', async () => {
+  await page.goto(`${origin}/?lang=id#certifications`);
+  const items = page.locator('.courses .course');
+  assert.equal(await items.count(), 13);
+  for (const link of await page.locator('.courses .course__verify').all()) {
+    assert.equal(await link.getAttribute('target'), '_blank');
+    assert.match(await link.getAttribute('rel'), /noopener/);
+    assert.match(await link.getAttribute('href'), /^https:\/\/www\.skills\.google\/public_profiles\/[\w-]+\/badges\/\d+$/);
+  }
+  assert.equal(await page.locator('.courses__toggle').count(), 0, 'Desktop shows open columns, no toggles');
+
+  await page.setViewportSize({ width: 360, height: 780 });
+  const toggle = page.locator('.courses__toggle').first();
+  const list = page.locator('.courses__list').first();
+  assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(await list.isVisible(), false);
+  await toggle.click();
+  assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+  assert.equal(await list.isVisible(), true);
+  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No horizontal overflow at 360px');
+  await toggle.click();
+  assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(await list.isVisible(), false);
+});

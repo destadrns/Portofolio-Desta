@@ -1,4 +1,4 @@
-import type { Certification, Profile, SkillGroup, TimelineItem } from '../types';
+import type { Certification, CloudCourseGroup, Profile, SkillGroup, TimelineItem } from '../types';
 
 // Sources: the old portfolio (copied as written) and the CV (PRD Appendix A).
 export const profile: Profile = {
@@ -138,7 +138,7 @@ export const skills: SkillGroup[] = [
   },
 ];
 
-// Names stay in English. Credly links open the public badge for verification.
+// Names stay in English. Each link opens the public credential for verification.
 export const certifications: Certification[] = [
   {
     name: 'Google Gemini AI Developer',
@@ -148,6 +148,7 @@ export const certifications: Certification[] = [
       id: 'Lulusan LastMile 2026 Bootcamp (Mar–Jun 2026): dasar LLM, prompt engineering, dan pengembangan aplikasi dengan Gemini API.',
       en: 'LastMile 2026 Bootcamp graduate (Mar–Jun 2026): LLM fundamentals, prompt engineering, and Gemini API app development.',
     },
+    verifyUrl: 'https://id.myskillwallet.ai/verify/certificate/5f799b77-b75c-4ddc-80b5-3ef12c2e0514',
   },
   {
     name: 'Deploy Multi-Agent Architectures',
@@ -174,8 +175,45 @@ export const certifications: Certification[] = [
     verifyUrl: 'https://www.credly.com/badges/f8656181-a34e-46a3-9ab2-61f955edcaef',
   },
   {
-    name: 'Cisco Certified Network Associate',
-    issuer: 'Cisco',
+    name: 'CCNA: Introduction to Networks',
+    issuer: 'Cisco Networking Academy',
     date: { id: 'Apr 2025', en: 'Apr 2025' },
+    verifyUrl: 'https://www.credly.com/badges/207b47e3-e921-4de6-8b0c-d520dca5e727',
+  },
+];
+
+// Google Skills public profile; a course's badge page is cloudCourseUrl(badgeId).
+const GOOGLE_SKILLS_PROFILE = 'https://www.skills.google/public_profiles/014fcc9a-389f-4af9-8647-7e6b5ee35960/badges';
+export const cloudCourseUrl = (badgeId: string) => `${GOOGLE_SKILLS_PROFILE}/${badgeId}`;
+
+// Completion badges that complement the skill badges above, newest first within each theme.
+export const cloudCourseGroups: CloudCourseGroup[] = [
+  {
+    name: 'AI Agents & Generative AI',
+    courses: [
+      { name: 'Build Intelligent Agents with Agent Development Kit (ADK)', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24758009' },
+      { name: 'Deploy Multi-Agent Systems with Gemini Enterprise Agent Platform', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24758007' },
+      { name: 'Build AI Agents with Enterprise Databases', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24760646' },
+      { name: 'Vector Search and Embeddings', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24772906' },
+      { name: 'Generate and Edit Media in Agent Platform', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24766797' },
+      { name: 'Generative AI Explorer – Agent Platform', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24716904' },
+    ],
+  },
+  {
+    name: 'MLOps & Responsible AI',
+    courses: [
+      { name: 'Responsible AI for Developers: Privacy & Safety', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24781577' },
+      { name: 'Machine Learning Operations (MLOps) for Generative AI', date: { id: 'Apr 2026', en: 'Apr 2026' }, badgeId: '23593430' },
+      { name: 'MLOps with Agent Platform: Model Evaluation', date: { id: 'Apr 2026', en: 'Apr 2026' }, badgeId: '23593506' },
+      { name: 'Model Armor: Securing AI Deployments', date: { id: 'Apr 2026', en: 'Apr 2026' }, badgeId: '23597461' },
+      { name: 'Responsible AI: Applying AI Principles with Google Cloud', date: { id: 'Apr 2026', en: 'Apr 2026' }, badgeId: '23593367' },
+    ],
+  },
+  {
+    name: 'Cloud Foundations',
+    courses: [
+      { name: 'Google Cloud Essentials', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24686541' },
+      { name: 'Google Developer Essentials', date: { id: 'Jun 2026', en: 'Jun 2026' }, badgeId: '24687229' },
+    ],
   },
 ];
