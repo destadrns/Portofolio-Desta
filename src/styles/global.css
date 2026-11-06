@@ -263,19 +263,13 @@ a:hover {
    Hidden start states exist only when JS has set html.motion (never under reduced motion).
    [data-reveal] gets data-inview once. Chips and list items arrive with their parent. */
 
-html.motion [data-reveal='rise'],
-html.motion [data-reveal='right'] {
+html.motion [data-reveal='rise'] {
   transition: opacity var(--dur-3) var(--ease), transform var(--dur-3) var(--ease);
 }
 
 html.motion [data-reveal='rise']:not([data-inview]) {
   opacity: 0;
   transform: translateY(var(--rise));
-}
-
-html.motion [data-reveal='right']:not([data-inview]) {
-  opacity: 0;
-  transform: translateX(var(--rise));
 }
 
 /* Lenis (wide fine-pointer screens): it owns the smoothing, so native smooth scroll stays off. */

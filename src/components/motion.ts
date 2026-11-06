@@ -18,7 +18,7 @@ export function prefersReducedMotion(): boolean {
 // Set before React's first paint so in-view content never flashes visible, then hidden, then in.
 document.documentElement.classList.toggle('motion', !prefersReducedMotion());
 
-export const scrollDriven = () => typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()');
+const scrollDriven = () => typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()');
 
 // cubic-bezier(x1, y1, x2, y2) as a function of progress, solved with Newton steps.
 function bezier(x1: number, y1: number, x2: number, y2: number) {
@@ -53,7 +53,7 @@ function tokenCurve(name: string) {
 // --ease for time-based motion JS drives (the hero scene); --ease-scroll for the scroll-linked 3D
 // fallback, matching the CSS scroll-driven animations.
 export const ease = tokenCurve('--ease');
-export const easeScroll = tokenCurve('--ease-scroll');
+const easeScroll = tokenCurve('--ease-scroll');
 
 // Elements with scroll-linked 3D (sections.css). Those on screen when the page opens, or when it
 // lands on a #fragment, take their final pose at once and keep it.

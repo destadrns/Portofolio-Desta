@@ -23,7 +23,8 @@
 
 /* ---------- Shared: sections and their heads ---------- */
 
-/* Clip sideways so entrances that start offset (the profile card at +--rise) never widen the page. */
+/* Clip sideways so posed 3D cards (a flipped card leaning out, the certificate pile) never widen the
+   page. Clip, unlike hidden, makes no scroll container, so view timelines still follow the page. */
 .section {
   padding-block: var(--section);
   overflow-x: clip;

@@ -37,7 +37,7 @@ function usePileOffsets() {
 
 // Six certificates as quiet cards. Names stay in English; issuer and date sit on one meta line;
 // each has a Verify link that opens in a new tab. With motion the cards are dealt out of one pile
-// as the grid scrolls in (--deal from motion.ts, --i per card).
+// as the grid scrolls in (sections.css, Scroll-linked 3D; --i per card).
 export function Certifications() {
   const { t } = useLang();
   const ref = usePileOffsets();
