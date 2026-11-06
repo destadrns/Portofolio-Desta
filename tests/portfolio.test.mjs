@@ -495,3 +495,15 @@ for (const path of ['scroll-driven', 'fallback']) {
     }
   });
 }
+
+test('The profile photo loads at 480 × 640', async () => {
+  await page.goto(`${origin}/?lang=id#about`);
+  const photo = page.locator('.profile-card__photo');
+  await photo.scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => document.querySelector('.profile-card__photo').complete);
+  const size = await photo.evaluate(img => [img.naturalWidth, img.naturalHeight]);
+  assert.deepEqual(size, [480, 640]);
+  const response = await page.request.get(new URL(await photo.getAttribute('src'), origin).href);
+  assert.equal(response.status(), 200);
+  assert.match(response.headers()['content-type'], /image\/webp/);
+});
