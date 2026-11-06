@@ -6,7 +6,7 @@ import { useReveal } from './motion';
 import { SectionHead } from './SectionHead';
 
 // Six certificates as quiet cards, revealed like the Skill cards. Names stay in English; issuer and
-// date sit on one meta line; a Credly badge gets a Verify link that opens in a new tab.
+// date sit on one meta line; each has a Verify link that opens in a new tab.
 export function Certifications() {
   const { t } = useLang();
   const ref = useReveal<HTMLUListElement>();

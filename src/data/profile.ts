@@ -138,7 +138,7 @@ export const skills: SkillGroup[] = [
   },
 ];
 
-// Names stay in English. Credly links open the public badge for verification.
+// Names stay in English. Each link opens the public credential for verification.
 export const certifications: Certification[] = [
   {
     name: 'Google Gemini AI Developer',
@@ -148,6 +148,7 @@ export const certifications: Certification[] = [
       id: 'Lulusan LastMile 2026 Bootcamp (Mar–Jun 2026): dasar LLM, prompt engineering, dan pengembangan aplikasi dengan Gemini API.',
       en: 'LastMile 2026 Bootcamp graduate (Mar–Jun 2026): LLM fundamentals, prompt engineering, and Gemini API app development.',
     },
+    verifyUrl: 'https://id.myskillwallet.ai/verify/certificate/5f799b77-b75c-4ddc-80b5-3ef12c2e0514',
   },
   {
     name: 'Deploy Multi-Agent Architectures',
@@ -174,8 +175,9 @@ export const certifications: Certification[] = [
     verifyUrl: 'https://www.credly.com/badges/f8656181-a34e-46a3-9ab2-61f955edcaef',
   },
   {
-    name: 'Cisco Certified Network Associate',
-    issuer: 'Cisco',
+    name: 'CCNA: Introduction to Networks',
+    issuer: 'Cisco Networking Academy',
     date: { id: 'Apr 2025', en: 'Apr 2025' },
+    verifyUrl: 'https://www.credly.com/badges/207b47e3-e921-4de6-8b0c-d520dca5e727',
   },
 ];
