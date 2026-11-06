@@ -73,8 +73,8 @@ function fragmentTarget() {
 }
 
 // One loop for every scroll-linked value: reading progress, header state, the hero's exit (--out),
-// each project card's curtain (--enter) and image drift (--pass), and the timelines' fill, lit dots,
-// and one-time entries. All layout reads happen first, then all writes, on the element that uses
+// each project card's curtain and stand-up (--enter) and image drift (--pass), the certificates'
+// deal (--deal), and the timelines' fill, lit dots, and one-time entries. All layout reads happen first, then all writes, on the element that uses
 // the value.
 export function useScrollMotion(enabled: boolean, smooth: boolean) {
   useEffect(() => {
@@ -119,6 +119,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
     }
 
     const hero = document.querySelector<HTMLElement>('.hero');
+    const certs = document.querySelector<HTMLElement>('.certs');
     const cards = [...document.querySelectorAll<HTMLElement>('.pcard')];
     const lines = [...document.querySelectorAll<HTMLElement>('.timeline')].map((line) => ({
       line,
@@ -134,6 +135,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
       const y = window.scrollY;
       const max = html.scrollHeight - vh;
       const heroRect = hero?.getBoundingClientRect();
+      const certsTop = certs?.getBoundingClientRect().top;
       const cardRects = cards.map((card) => card.getBoundingClientRect());
       const measured = lines.map(({ line, rows }) => {
         const r = line.getBoundingClientRect();
@@ -153,6 +155,8 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
       if (progress) setVar(progress, '--read', max > 0 ? clamp(y / max) : 0);
       html.toggleAttribute('data-scrolled', y > 8);
       if (hero && heroRect) setVar(hero, '--out', clamp(-heroRect.top / heroRect.height));
+      // Certificates deal out of a pile as the grid's top climbs from 95% to 40% of the viewport.
+      if (certs && certsTop !== undefined) setVar(certs, '--deal', clamp((vh * 0.95 - certsTop) / (vh * 0.55)));
       cards.forEach((card, i) => {
         const r = cardRects[i];
         setVar(card, '--enter', clamp((vh - r.top) / (vh * 0.4)));

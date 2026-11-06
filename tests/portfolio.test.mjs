@@ -29,6 +29,15 @@ after(async () => {
   await new Promise(resolve => server?.httpServer.close(resolve) ?? resolve());
 });
 
+// Waits until a project card's title sits in the viewport below the sticky header.
+const waitForCard = id => page.waitForFunction(id => {
+  const box = document.getElementById(id + '-title').getBoundingClientRect();
+  return box.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && box.bottom < innerHeight;
+}, id);
+
+// The WebGL stack's chunk (heroScene.ts with three.js bundled in).
+const isSceneChunk = url => /\/assets\/[^/]*(heroScene|three)[^/]*\.js$/.test(new URL(url).pathname);
+
 for (const width of [390, 1440]) {
   test(`Direct links reach their target at ${width}px`, async () => {
     await page.setViewportSize({ width, height: 900 });
@@ -36,10 +45,7 @@ for (const width of [390, 1440]) {
       await page.goto('about:blank');
       await page.goto(`${origin}/?lang=id#${id}`);
       await page.evaluate(() => document.fonts.ready);
-      await page.waitForFunction(id => {
-        const box = document.getElementById(id + '-title').getBoundingClientRect();
-        return box.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && box.bottom < innerHeight;
-      }, id);
+      await waitForCard(id);
       await page.evaluate(() => Promise.allSettled(document.getAnimations().map(animation => animation.finished)));
       const title = await page.locator(`#${id}-title`).boundingBox();
       const header = await page.locator('.site-header').boundingBox();
@@ -205,5 +211,176 @@ test('New visitors get Indonesian; the toggle choice persists and drives the CV 
   for (const file of ['ID', 'EN']) {
     const pdf = await page.request.get(`${origin}/cv/CV_Desta_Adriyan_Saputra_${file}.pdf`);
     assert.equal(pdf.status(), 200);
+  }
+});
+
+test('The WebGL stack fades in over the CSS stack on a wide screen with a mouse', async () => {
+  const consoleErrors = [];
+  const requested = [];
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('request', request => requested.push(request.url()));
+  await page.goto(`${origin}/?lang=id`);
+  await page.waitForSelector('.stack[data-gl] .stack__canvas', { timeout: 15000 });
+  assert.equal(requested.filter(isSceneChunk).length, 1, 'three.js arrives as one separate chunk');
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('.stack__canvas')).opacity === '1');
+  assert.equal(await page.locator('canvas').count(), 1, 'One WebGL canvas');
+  assert.equal(await page.locator('.stack__canvas').getAttribute('aria-hidden'), 'true');
+  assert.equal(await page.locator('.stack__plate').count(), 5, 'The CSS stack stays in the DOM');
+  assert.deepEqual(consoleErrors, [], 'No console errors');
+});
+
+for (const [name, options] of [
+  ['a 390px touch screen', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }],
+  ['reduced motion', { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }],
+]) {
+  test(`No three.js request and no canvas on ${name}`, async () => {
+    await context.close();
+    context = await browser.newContext(options);
+    page = await context.newPage();
+    page.on('pageerror', error => errors.push(error.message));
+    const requested = [];
+    page.on('request', request => requested.push(request.url()));
+    await page.goto(`${origin}/?lang=id`, { waitUntil: 'load' });
+    // Past the idle callback's 2 s timeout, when the scene would have been requested.
+    await page.waitForTimeout(2500);
+    assert.deepEqual(requested.filter(isSceneChunk), [], 'three.js is never requested');
+    assert.equal(await page.locator('canvas').count(), 0);
+  });
+}
+
+test('Clicking the middle plate, or its skip link, lands on that project card', async () => {
+  await page.goto(`${origin}/?lang=id`);
+  await page.waitForSelector('.stack[data-gl]', { timeout: 15000 });
+  const stack = await page.locator('.stack').boundingBox();
+  // NEST, the middle plate, shows to the right of the two plates in front of it.
+  const x = stack.x + stack.width * 0.78;
+  const y = stack.y + stack.height / 2;
+  await page.mouse.move(x, y);
+  await page.waitForFunction(() => document.querySelector('.stack__label[data-on]')?.textContent.includes('NEST'));
+  assert(await page.locator('.hero').evaluate(el => getComputedStyle(el).cursor === 'pointer'));
+  await page.mouse.click(x, y);
+  await waitForCard('nest');
+  assert.equal(new URL(page.url()).hash, '#nest');
+
+  await page.goto('about:blank');
+  await page.goto(`${origin}/?lang=id`);
+  await page.waitForSelector('.stack[data-gl]', { timeout: 15000 });
+  const link = page.locator('.stack__links a[href="#nest"]');
+  assert.equal(await link.evaluate(el => el.getBoundingClientRect().width), 1, 'Hidden until focused');
+  await link.focus();
+  assert((await link.boundingBox()).width > 44, 'Visible once focused');
+  await page.waitForFunction(() => document.querySelector('.stack__label[data-on]')?.textContent.includes('NEST'));
+  await page.keyboard.press('Enter');
+  await waitForCard('nest');
+  assert(await page.evaluate(() => document.activeElement?.id === 'nest'), 'Focus moves to the card');
+});
+
+test('Project screenshots lie back as their card enters and stand upright at --enter = 1', async () => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${origin}/?lang=id`);
+  const tilt = () => page.locator('#nest .pcard__frame').evaluate(el => {
+    const m = new DOMMatrix(getComputedStyle(el).transform);
+    return { identity: m.isIdentity, angle: Math.acos(Math.min(1, m.m22)) * 180 / Math.PI };
+  });
+  const scrollCardTo = offset => page.evaluate(offset => {
+    const card = document.getElementById('nest');
+    scrollTo({ top: card.getBoundingClientRect().top + scrollY - innerHeight * offset, behavior: 'instant' });
+  }, offset);
+
+  await scrollCardTo(0.95);
+  await page.waitForFunction(() => parseFloat(document.getElementById('nest').style.getPropertyValue('--enter')) < 0.2);
+  const lying = await tilt();
+  assert(!lying.identity && lying.angle > 12, `Frame lies back as it enters (${lying.angle.toFixed(1)}°)`);
+
+  await scrollCardTo(0.5);
+  await page.waitForFunction(() => document.getElementById('nest').style.getPropertyValue('--enter') === '1.0000');
+  assert((await tilt()).identity, 'Frame is upright');
+  const [sheen, shadow] = await page.locator('#nest .pcard__frame').evaluate(el => [
+    getComputedStyle(el, '::after').opacity,
+    getComputedStyle(el.parentElement, '::before').opacity,
+  ]);
+  assert.deepEqual([sheen, shadow], ['0', '1'], 'Sheen gone, contact shadow in');
+});
+
+test('Certificates deal out of a pile without sideways scroll and end without overlap', async () => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${origin}/?lang=id`);
+  for (const offset of [0.9, 0.75, 0.6, 0.45]) {
+    await page.evaluate(offset => {
+      const grid = document.querySelector('.certs');
+      scrollTo({ top: grid.getBoundingClientRect().top + scrollY - innerHeight * offset, behavior: 'instant' });
+    }, offset);
+    await page.waitForFunction(offset => {
+      const deal = parseFloat(document.querySelector('.certs').style.getPropertyValue('--deal'));
+      return Math.abs(deal - Math.min(1, (0.95 - offset) / 0.55)) < 0.02;
+    }, offset);
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `No horizontal overflow at deal offset ${offset}`);
+  }
+  await page.evaluate(() => {
+    const grid = document.querySelector('.certs');
+    scrollTo({ top: grid.getBoundingClientRect().top + scrollY - innerHeight * 0.9, behavior: 'instant' });
+  });
+  await page.waitForFunction(() => parseFloat(document.querySelector('.certs').style.getPropertyValue('--deal')) < 0.1);
+  assert(await page.evaluate(() => !new DOMMatrix(getComputedStyle(document.querySelectorAll('.cert')[5]).transform).isIdentity), 'Cards start piled');
+
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('about:blank');
+    await page.goto(`${origin}/?lang=id#contact`);
+    await page.waitForFunction(() => document.querySelector('.certs').style.getPropertyValue('--deal') === '1.0000');
+    const overlaps = await page.evaluate(() => {
+      const boxes = [...document.querySelectorAll('.cert')].map(el => el.getBoundingClientRect());
+      const hits = [];
+      boxes.forEach((a, i) => boxes.slice(i + 1).forEach((b, j) => {
+        if (a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5) hits.push([i, i + j + 1]);
+      }));
+      return hits;
+    });
+    assert.deepEqual(overlaps, [], `No overlapping certificates at ${width}px`);
+  }
+});
+
+test('The WebGL stack stops moving on its own within 5 s of the pointer leaving', async () => {
+  // Counts animation frames from here on; motion.ts and Lenis only ask for frames on input.
+  await page.addInitScript(() => {
+    window.frames$ = 0;
+    const request = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = callback => request(time => { window.frames$++; callback(time); });
+  });
+  await page.goto(`${origin}/?lang=id`);
+  await page.waitForSelector('.stack[data-gl]', { timeout: 15000 });
+  await page.waitForTimeout(6500);
+  const before = await page.evaluate(() => window.frames$);
+  await page.waitForTimeout(1000);
+  assert.equal(await page.evaluate(() => window.frames$) - before, 0, 'No frames while nothing moves');
+
+  const stack = await page.locator('.stack').boundingBox();
+  await page.mouse.move(stack.x + stack.width * 0.78, stack.y + stack.height / 2);
+  await page.waitForFunction(() => document.querySelector('.stack__label[data-on]') !== null);
+});
+
+test('Keyboard focus in the certificates deals the pile and keeps the link in view', async () => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${origin}/?lang=id`);
+  await page.evaluate(() => {
+    const grid = document.querySelector('.certs');
+    scrollTo({ top: grid.getBoundingClientRect().top + scrollY - innerHeight * 0.8, behavior: 'instant' });
+  });
+  await page.waitForFunction(() => parseFloat(document.querySelector('.certs').style.getPropertyValue('--deal')) < 0.4);
+  for (const link of await page.locator('.cert__verify').all()) {
+    await link.focus();
+    // Waits out the smooth scroll that brings the link in; fails if it stays covered or off screen.
+    await link.evaluate(el => new Promise((resolve, reject) => {
+      const until = performance.now() + 3000;
+      const check = () => {
+        const box = el.getBoundingClientRect();
+        const header = document.querySelector('.site-header').getBoundingClientRect().bottom;
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        if (box.top >= header - 1 && box.bottom <= innerHeight + 1 && el.contains(hit)) resolve();
+        else if (performance.now() > until) reject(new Error(`${el.getAttribute('aria-label')} stays covered or off screen`));
+        else requestAnimationFrame(check);
+      };
+      check();
+    }));
   }
 });

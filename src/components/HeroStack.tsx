@@ -1,5 +1,9 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { projects } from '../data/projects';
+import { ui } from '../data/ui';
+import { useLang } from '../i18n/LanguageContext';
+import type { HeroScene } from './heroScene';
+import { useMedia } from './motion';
 
 // Hero copies of the screenshots at 320, 640, and 1024 px. A plate is 56cqw of the stack (the column
 // width, up to 520px); perspective draws the front plate about 15% larger, so it shows 212px wide on
@@ -10,16 +14,122 @@ const stackImage = (src: string, w?: number) => {
 };
 const PLATE_SIZES = '(min-width: 1024px) 310px, min(340px, calc((100vw - 32px) * 0.65))';
 
+// The WebGL stack is an upgrade for wide screens with a mouse and full motion. Anywhere else
+// three.js is never requested and the CSS stack is all there is.
+const SCENE_QUERY = '(hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference)';
+
+// Runs fn once the page has loaded and the browser is idle.
+function afterLoadIdle(fn: () => void) {
+  let cancelIdle = () => {};
+  const idle = () => {
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(fn, { timeout: 2000 });
+      cancelIdle = () => cancelIdleCallback(id);
+    } else {
+      const id = setTimeout(fn, 200);
+      cancelIdle = () => clearTimeout(id);
+    }
+  };
+  if (document.readyState === 'complete') idle();
+  else window.addEventListener('load', idle, { once: true });
+  return () => {
+    window.removeEventListener('load', idle);
+    cancelIdle();
+  };
+}
+
 // Five project plates facing the viewer, stacked into depth: NOVAÉ in front, each later plate a
-// step right, up, and back. No rotation. Depth comes from CSS perspective and the plate edges only.
-// CSS animates the entrance; the scroll loop in motion.ts writes --out on .hero, which spreads
-// and recedes the stack as the hero scrolls away.
+// step right, up, and back. CSS animates the entrance; the scroll loop in motion.ts writes --out on
+// .hero, which spreads and recedes the stack as the hero scrolls away. On wide mouse screens a
+// WebGL copy (heroScene.ts) fades in over it: hover lifts a plate and shows its label, and a click
+// follows the matching hidden link below, so in-page navigation stays the one in motion.ts.
 export function HeroStack() {
+  const { t } = useLang();
   const middle = (projects.length - 1) / 2;
+  const sceneOn = useMedia(SCENE_QUERY);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const links = useRef<(HTMLAnchorElement | null)[]>([]);
+  const scene = useRef<HeroScene | null>(null);
+  const [ready, setReady] = useState(false);
+  const [lit, setLit] = useState<number | null>(null);
+  // The label keeps the last plate's text while it fades out.
+  const [shown, setShown] = useState(0);
+
+  // Loads heroScene.ts (three.js, its own chunk) into one canvas over the CSS stack. Until it is
+  // ready, and whenever loading or WebGL fails, the CSS stack stays as it is.
+  useEffect(() => {
+    const stack = stackRef.current;
+    const hero = stack?.closest<HTMLElement>('.hero');
+    const label = labelRef.current;
+    if (!sceneOn || !stack || !hero || !label) return;
+
+    let cancelled = false;
+    let pending = false;
+    let canvas: HTMLCanvasElement | null = null;
+    let context: WebGL2RenderingContext | null = null;
+    const release = () => {
+      scene.current?.dispose();
+      scene.current = null;
+      context?.getExtension('WEBGL_lose_context')?.loseContext();
+      canvas?.remove();
+      context = null;
+      canvas = null;
+    };
+
+    const stopWaiting = afterLoadIdle(() => {
+      canvas = document.createElement('canvas');
+      context = canvas.getContext('webgl2', { alpha: true, antialias: false, powerPreference: 'low-power' });
+      if (!context) {
+        canvas = null;
+        return;
+      }
+      canvas.className = 'stack__canvas';
+      canvas.setAttribute('aria-hidden', 'true');
+      stack.append(canvas);
+      const gl = { canvas, context };
+      pending = true;
+      import('./heroScene')
+        .then(({ createHeroScene }) =>
+          cancelled
+            ? null
+            : createHeroScene({
+                ...gl,
+                hero,
+                stack,
+                label,
+                images: projects.map((p) => stackImage(p.image, 640)),
+                onHighlight: (index) => {
+                  setLit(index);
+                  if (index !== null) setShown(index);
+                },
+                onSelect: (index) => links.current[index]?.click(),
+              }),
+        )
+        .then((created) => {
+          scene.current = created;
+          if (cancelled) release();
+          else setReady(true);
+        })
+        .catch(() => release())
+        .finally(() => {
+          pending = false;
+        });
+    });
+
+    return () => {
+      cancelled = true;
+      stopWaiting();
+      if (!pending) release();
+      setReady(false);
+    };
+  }, [sceneOn]);
+
+  const labelled = projects[shown];
 
   return (
-    <div className="stack" aria-hidden="true">
-      <div className="stack__stage">
+    <div ref={stackRef} className="stack" data-gl={ready || undefined}>
+      <div className="stack__stage" aria-hidden="true">
         <div className="stack__group">
           {projects.map((project, i) => (
             <img
@@ -37,6 +147,30 @@ export function HeroStack() {
           ))}
         </div>
       </div>
+      {sceneOn && (
+        <div ref={labelRef} className="stack__label" data-on={(ready && lit !== null) || undefined} aria-hidden="true">
+          <p className="stack__label-name">
+            <span className="stack__label-num">{labelled.number}</span> {labelled.name}
+          </p>
+          <p>{t(labelled.tagline)}</p>
+          <p className="stack__label-hint">{t(ui.stackHint)}</p>
+        </div>
+      )}
+      <nav className="stack__links" aria-label={t(ui.stackLinks)}>
+        {projects.map((project, i) => (
+          <a
+            key={project.id}
+            ref={(el) => {
+              links.current[i] = el;
+            }}
+            href={`#${project.id}`}
+            onFocus={() => scene.current?.setFocus(i)}
+            onBlur={() => scene.current?.setFocus(null)}
+          >
+            {project.number} {project.name}
+          </a>
+        ))}
+      </nav>
     </div>
   );
 }

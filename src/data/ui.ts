@@ -116,5 +116,8 @@ export const ui = {
   workflowNote: { id: 'Panduan berdasarkan dokumentasi proyek.', en: 'A walkthrough based on the project documentation.' },
   viewEvidence: { id: 'Lihat bukti & panduan menjalankan', en: 'View evidence & setup guide' },
   projectIndex: { id: 'Langsung ke proyek', en: 'Jump to a project' },
+  // The hero stack: its hidden project links and the hint in the hover label.
+  stackLinks: { id: 'Proyek di tumpukan pembuka', en: 'Projects in the hero stack' },
+  stackHint: { id: 'Klik untuk membuka proyek ini', en: 'Click to open this project' },
   socialLabel: { id: 'Media sosial', en: 'Social media' },
 } satisfies Record<string, Localized>;

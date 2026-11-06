@@ -502,6 +502,97 @@ html[data-scrolled] .site-header::before,
   }
 }
 
+/* WebGL stack (heroScene.ts, wide mouse screens only). Its canvas overhangs the stack evenly on every
+   side, so plates have room to lift and spread; the hero clips it sideways and the canvas never takes
+   the pointer (the hero listens instead). Once the scene is ready it fades in over the CSS stage. */
+.stack__canvas {
+  position: absolute;
+  top: -16%;
+  left: -12%;
+  width: 124%;
+  height: 132%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease);
+}
+
+.stack[data-gl] .stack__canvas {
+  opacity: 1;
+}
+
+.stack[data-gl] .stack__stage {
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease);
+}
+
+.hero[data-stack-hover] {
+  cursor: pointer;
+}
+
+/* Label for the highlighted plate, pinned to its top-left corner by heroScene.ts (transform only). */
+.stack__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  max-width: 17rem;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: var(--fs-meta);
+  color: var(--text-2);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease);
+}
+
+.stack__label[data-on] {
+  opacity: 1;
+}
+
+.stack__label-name {
+  font-size: var(--fs-name);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stack__label-num {
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.stack__label-hint {
+  margin-top: var(--space-1);
+  color: var(--accent);
+}
+
+/* One link per plate, hidden until keyboard focus; then it shows under the stack's left edge. */
+.stack__links a {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border) solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.stack__links a:not(:focus) {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 @media (min-width: 1024px) {
   .hero__inner {
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
@@ -742,6 +833,51 @@ html[data-scrolled] .site-header::before,
 
 html.motion .pcard__frame {
   clip-path: inset(calc((1 - var(--enter, 1)) * 12%));
+}
+
+/* The frame also stands up with --enter: it starts lying back 16° on its bottom edge and is upright
+   at 1. A faint sheen on its face fades as it rises and a soft contact shadow under it appears; both
+   are pseudo-elements and only their opacity changes. The image link is the 3D viewer. */
+.pcard__image-link {
+  position: relative;
+}
+
+html.motion .pcard__image-link {
+  perspective: 900px;
+}
+
+html.motion .pcard__frame {
+  transform-origin: 50% 100%;
+  transform: rotateX(calc((1 - var(--enter, 1)) * 16deg));
+}
+
+.pcard__frame {
+  position: relative;
+}
+
+.pcard__frame::after,
+.pcard__image-link::before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.pcard__frame::after {
+  inset: 0;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--frost) 16%, transparent), transparent 55%);
+  opacity: calc(1 - var(--enter, 1));
+}
+
+/* Placed in the frame's grid row, so it sits on the frame's bottom edge. */
+.pcard__image-link::before {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  right: 6%;
+  bottom: -10px;
+  left: 6%;
+  height: 20px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--midnight) 85%, transparent), transparent);
+  opacity: var(--enter, 1);
 }
 
 .pcard__frame img {
@@ -1215,11 +1351,13 @@ html:not(.motion) .timeline__dot::after {
 /* Same card language as Skills: one column on phones, two from 768px, three from 1024px. The
    Verify link sits at the bottom of each card so the links line up across a row. */
 .certs {
+  position: relative;
   display: grid;
   gap: var(--space-4);
 }
 
 .cert {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -1257,6 +1395,51 @@ html:not(.motion) .timeline__dot::after {
 .cert__verify {
   align-self: flex-start;
   margin-top: auto;
+}
+
+/* Deal (scroll-linked): --deal on .certs runs 0 → 1 (motion.ts) and each card starts 0.07 after the
+   one before (--i). Piled, the cards sit at the grid's top centre (--dx, --dy from Certifications.tsx),
+   tilted in turn from -5° to 4.5°, layered back and leaning back a little, the first card on top. A
+   soft shadow shows while they are piled (a pseudo-element; only its opacity changes). The section
+   clips sideways, so the pile never widens the page. */
+html.motion .certs {
+  perspective: 1400px;
+  perspective-origin: 50% 0;
+}
+
+html.motion .cert {
+  --p: clamp(0, (var(--deal, 1) - var(--i) * 0.07) / 0.65, 1);
+  --piled: calc(1 - var(--p) * (2 - var(--p)));
+  --side: -1;
+  z-index: calc(10 - var(--i));
+  transform: translate3d(
+      calc(var(--dx, 0px) * var(--piled)),
+      calc((var(--dy, 0px) + var(--i) * 6px) * var(--piled)),
+      calc(var(--i) * -30px * var(--piled))
+    )
+    rotate(calc(var(--side) * (5deg - var(--i) * 0.5deg) * var(--piled)))
+    rotateX(calc(12deg * var(--piled)));
+}
+
+html.motion .cert:nth-child(even) {
+  --side: 1;
+}
+
+/* Keyboard focus inside the grid deals every card at once, so a focused link is never under the pile
+   (WCAG 2.4.11). Certifications.tsx then keeps it on screen. */
+html.motion .certs:focus-within .cert {
+  --piled: 0;
+}
+
+html.motion .cert::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--ink) 35%, transparent);
+  opacity: var(--piled);
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {

@@ -348,6 +348,16 @@ html.lenis {
   html.motion .pcard__frame {
     clip-path: none !important;
     aspect-ratio: auto !important;
+    transform: none !important;
+  }
+
+  .pcard__frame::after,
+  html.motion .cert::before {
+    opacity: 0 !important;
+  }
+
+  html.motion .cert {
+    transform: none !important;
   }
 
   html.motion .pcard__frame img {
