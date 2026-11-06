@@ -46,7 +46,8 @@ for (const width of [390, 1440]) {
       await page.goto(`${origin}/?lang=id#${id}`);
       await page.evaluate(() => document.fonts.ready);
       await waitForCard(id);
-      await page.evaluate(() => Promise.allSettled(document.getAnimations().map(animation => animation.finished)));
+      // Time-based animations only: scroll-driven ones never finish.
+      await page.evaluate(() => Promise.allSettled(document.getAnimations().filter(animation => animation.timeline === document.timeline).map(animation => animation.finished)));
       const title = await page.locator(`#${id}-title`).boundingBox();
       const header = await page.locator('.site-header').boundingBox();
       assert(title.y >= header.y + header.height, 'Heading clears the sticky header');
@@ -305,59 +306,106 @@ test('Clicking the middle plate, or its skip link, lands on that project card', 
   assert(await page.evaluate(() => document.activeElement?.id === 'nest'), 'Focus moves to the card');
 });
 
-test('Project screenshots lie back as their card enters and stand upright at --enter = 1', async () => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${origin}/?lang=id`);
-  const tilt = () => page.locator('#nest .pcard__frame').evaluate(el => {
-    const m = new DOMMatrix(getComputedStyle(el).transform);
-    return { identity: m.isIdentity, angle: Math.acos(Math.min(1, m.m22)) * 180 / Math.PI };
+// Forces the JavaScript fallback: the page then sees no CSS scroll-driven animations.
+const withoutScrollTimelines = () => {
+  const supports = CSS.supports.bind(CSS);
+  CSS.supports = (...args) => (args.join(' ').includes('animation-timeline') ? false : supports(...args));
+};
+
+// Each moving element, with the element whose scroll position drives it.
+const MOVING = [
+  ['#nest .pcard__frame', '#nest'],
+  ['.profile-card', '.profile-card'],
+  ['.skill-card:nth-child(2)', '.skill-card:nth-child(2)'],
+  ['.others__item:nth-child(2)', '.others__item:nth-child(2)'],
+  ['.cert:nth-child(3)', '.certs'],
+];
+
+// Scrolls the driving element to a spot, then reads the moving element's pose.
+const poseAt = async (element, anchor, place) => {
+  await page.evaluate(([anchor, place]) => {
+    const box = document.querySelector(anchor).getBoundingClientRect();
+    // 'entering': top edge just inside the bottom of the viewport; 'passed': bottom edge above it.
+    const top = place === 'entering' ? box.top + scrollY - innerHeight + 8 : box.bottom + scrollY + 50;
+    scrollTo({ top, behavior: 'instant' });
+  }, [anchor, place]);
+  await page.waitForTimeout(250);
+  return page.locator(element).evaluate(el => {
+    const style = getComputedStyle(el);
+    return { identity: new DOMMatrix(style.transform).isIdentity && style.rotate === 'none', opacity: Number(style.opacity) };
   });
-  const scrollCardTo = offset => page.evaluate(offset => {
-    const card = document.getElementById('nest');
-    scrollTo({ top: card.getBoundingClientRect().top + scrollY - innerHeight * offset, behavior: 'instant' });
-  }, offset);
+};
 
-  await scrollCardTo(0.95);
-  await page.waitForFunction(() => parseFloat(document.getElementById('nest').style.getPropertyValue('--enter')) < 0.2);
-  const lying = await tilt();
-  assert(!lying.identity && lying.angle > 12, `Frame lies back as it enters (${lying.angle.toFixed(1)}°)`);
+for (const path of ['scroll-driven', 'fallback']) {
+  for (const width of [390, 1440]) {
+    test(`3D scroll motion (${path}) starts posed and ends upright at ${width}px`, async () => {
+      await page.setViewportSize({ width, height: 900 });
+      if (path === 'fallback') await page.addInitScript(withoutScrollTimelines);
+      // Opens below the moving elements' starting points, so none of them is settled on load.
+      await page.goto(`${origin}/?lang=id#experience`);
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(300);
+      assert.equal(await page.evaluate(() => document.documentElement.classList.contains('sda')), path === 'scroll-driven');
+      for (const [element, anchor] of MOVING) {
+        const entering = await poseAt(element, anchor, 'entering');
+        assert(!entering.identity, `${element} starts posed as it enters (${path}, ${width}px)`);
+        const passed = await poseAt(element, anchor, 'passed');
+        assert(passed.identity && passed.opacity === 1, `${element} is upright once passed (${path}, ${width}px)`);
+      }
+    });
+  }
+}
 
-  await scrollCardTo(0.5);
-  await page.waitForFunction(() => document.getElementById('nest').style.getPropertyValue('--enter') === '1.0000');
-  assert((await tilt()).identity, 'Frame is upright');
-  const [sheen, shadow] = await page.locator('#nest .pcard__frame').evaluate(el => [
-    getComputedStyle(el, '::after').opacity,
-    getComputedStyle(el.parentElement, '::before').opacity,
-  ]);
-  assert.deepEqual([sheen, shadow], ['0', '1'], 'Sheen gone, contact shadow in');
+test('Elements on screen when the page opens are already in their final pose', async () => {
+  for (const id of ['about', 'skills', 'certifications']) {
+    await page.goto('about:blank');
+    await page.goto(`${origin}/?lang=id#${id}`);
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(300);
+    const posed = await page.evaluate(() => [...document.querySelectorAll('.profile-card, .skill-card, .cert')]
+      .filter(el => { const r = el.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; })
+      .filter(el => !new DOMMatrix(getComputedStyle(el).transform).isIdentity || getComputedStyle(el).opacity !== '1')
+      .map(el => el.className));
+    assert.deepEqual(posed, [], `Visible cards rest at #${id}`);
+  }
 });
 
-test('Certificates deal out of a pile without sideways scroll and end without overlap', async () => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${origin}/?lang=id`);
-  for (const offset of [0.9, 0.75, 0.6, 0.45]) {
-    await page.evaluate(offset => {
-      const grid = document.querySelector('.certs');
-      scrollTo({ top: grid.getBoundingClientRect().top + scrollY - innerHeight * offset, behavior: 'instant' });
-    }, offset);
-    await page.waitForFunction(offset => {
-      const deal = parseFloat(document.querySelector('.certs').style.getPropertyValue('--deal'));
-      return Math.abs(deal - Math.min(1, (0.95 - offset) / 0.55)) < 0.02;
-    }, offset);
-    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `No horizontal overflow at deal offset ${offset}`);
+test('Reduced motion leaves every moving element untransformed', async () => {
+  await context.close();
+  context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  page = await context.newPage();
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(`${origin}/?lang=id#experience`);
+  for (const offset of [0, 0.5]) {
+    await page.evaluate(offset => scrollTo({ top: document.documentElement.scrollHeight * offset, behavior: 'instant' }), offset);
+    const moved = await page.evaluate(() => [...document.querySelectorAll('.pcard__frame, .pcard__frame img, .profile-card, .skill-card, .others__item, .cert')]
+      .filter(el => { const s = getComputedStyle(el); return s.transform !== 'none' || s.rotate !== 'none' || s.translate !== 'none' || s.opacity !== '1'; })
+      .map(el => el.className));
+    assert.deepEqual(moved, []);
   }
-  await page.evaluate(() => {
-    const grid = document.querySelector('.certs');
-    scrollTo({ top: grid.getBoundingClientRect().top + scrollY - innerHeight * 0.9, behavior: 'instant' });
-  });
-  await page.waitForFunction(() => parseFloat(document.querySelector('.certs').style.getPropertyValue('--deal')) < 0.1);
-  assert(await page.evaluate(() => !new DOMMatrix(getComputedStyle(document.querySelectorAll('.cert')[5]).transform).isIdentity), 'Cards start piled');
+});
 
+test('No sideways scroll at 360px and 390px anywhere along the page, and dealt certificates never overlap', async () => {
+  for (const width of [360, 390]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto(`${origin}/?lang=id`);
+    const wide = await page.evaluate(async () => {
+      const hits = [];
+      for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight / 3) {
+        scrollTo({ top: y, behavior: 'instant' });
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        if (document.documentElement.scrollWidth > innerWidth) hits.push(Math.round(y));
+      }
+      return hits;
+    });
+    assert.deepEqual(wide, [], `No horizontal overflow at ${width}px`);
+  }
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('about:blank');
     await page.goto(`${origin}/?lang=id#contact`);
-    await page.waitForFunction(() => document.querySelector('.certs').style.getPropertyValue('--deal') === '1.0000');
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(300);
     const overlaps = await page.evaluate(() => {
       const boxes = [...document.querySelectorAll('.cert')].map(el => el.getBoundingClientRect());
       const hits = [];
@@ -417,28 +465,33 @@ test('The WebGL stack stops moving on its own within 5 s of the pointer leaving'
   await page.waitForFunction(() => document.querySelector('.stack__label[data-on]') !== null);
 });
 
-test('Keyboard focus in the certificates deals the pile and keeps the link in view', async () => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${origin}/?lang=id`);
-  await page.evaluate(() => {
-    const grid = document.querySelector('.certs');
-    scrollTo({ top: grid.getBoundingClientRect().top + scrollY - innerHeight * 0.8, behavior: 'instant' });
+for (const path of ['scroll-driven', 'fallback']) {
+  test(`Keyboard focus in a moving list shows its final pose and keeps the link in view (${path})`, async () => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    if (path === 'fallback') await page.addInitScript(withoutScrollTimelines);
+    await page.goto(`${origin}/?lang=id`);
+    for (const [list, links] of [['.others__list', '.others__link'], ['.certs', '.cert__verify']]) {
+      await page.evaluate(list => {
+        const grid = document.querySelector(list);
+        scrollTo({ top: grid.getBoundingClientRect().top + scrollY - innerHeight * 0.85, behavior: 'instant' });
+      }, list);
+      await page.waitForTimeout(250);
+      for (const link of await page.locator(links).all()) {
+        await link.focus();
+        // Waits out the smooth scroll that brings the link in; fails if it stays covered or off screen.
+        await link.evaluate(el => new Promise((resolve, reject) => {
+          const until = performance.now() + 3000;
+          const check = () => {
+            const box = el.getBoundingClientRect();
+            const header = document.querySelector('.site-header').getBoundingClientRect().bottom;
+            const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+            if (box.top >= header - 1 && box.bottom <= innerHeight + 1 && el.contains(hit)) resolve();
+            else if (performance.now() > until) reject(new Error(`${el.getAttribute('aria-label')} stays covered or off screen`));
+            else requestAnimationFrame(check);
+          };
+          check();
+        }));
+      }
+    }
   });
-  await page.waitForFunction(() => parseFloat(document.querySelector('.certs').style.getPropertyValue('--deal')) < 0.4);
-  for (const link of await page.locator('.cert__verify').all()) {
-    await link.focus();
-    // Waits out the smooth scroll that brings the link in; fails if it stays covered or off screen.
-    await link.evaluate(el => new Promise((resolve, reject) => {
-      const until = performance.now() + 3000;
-      const check = () => {
-        const box = el.getBoundingClientRect();
-        const header = document.querySelector('.site-header').getBoundingClientRect().bottom;
-        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-        if (box.top >= header - 1 && box.bottom <= innerHeight + 1 && el.contains(hit)) resolve();
-        else if (performance.now() > until) reject(new Error(`${el.getAttribute('aria-label')} stays covered or off screen`));
-        else requestAnimationFrame(check);
-      };
-      check();
-    }));
-  }
-});
+}

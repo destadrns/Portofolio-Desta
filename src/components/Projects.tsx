@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type CSSProperties } from 'react';
 import { otherProjects, projects } from '../data/projects';
 import { ui } from '../data/ui';
 import { useLang } from '../i18n/LanguageContext';
@@ -182,8 +182,8 @@ export function Projects() {
         <div className="others">
           <h3 className="others__title">{t(ui.otherProjects)}</h3>
           <ul className="others__list">
-            {otherProjects.map((project) => (
-              <li key={project.name} className="others__item">
+            {otherProjects.map((project, i) => (
+              <li key={project.name} className="others__item" style={{ '--i': i } as CSSProperties}>
                 <h4 className="others__name">{project.name}</h4>
                 <p>{t(project.description)}</p>
                 <p className="others__stack">{project.stack.join(' · ')}</p>

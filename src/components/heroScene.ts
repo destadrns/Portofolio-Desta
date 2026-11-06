@@ -16,6 +16,7 @@ import {
   WebGLRenderer,
   type Texture,
 } from 'three';
+import { ease } from './motion';
 
 // The WebGL version of the hero stack, loaded on demand by HeroStack.tsx (its own chunk). It repeats
 // the CSS stack in sections.css: world units are the stack's width (CSS cqw / 100), the camera sits
@@ -105,24 +106,7 @@ export type HeroScene = {
 
 const clamp = (v: number) => Math.min(1, Math.max(0, v));
 
-// cubic-bezier(x1, y1, x2, y2) as a function of time, solved with Newton steps.
-function bezier(x1: number, y1: number, x2: number, y2: number) {
-  const at = (t: number, a: number, b: number) => ((1 - 3 * b + 3 * a) * t + (3 * b - 6 * a)) * t * t + 3 * a * t;
-  const slope = (t: number, a: number, b: number) => 3 * (1 - 3 * b + 3 * a) * t * t + 2 * (3 * b - 6 * a) * t + 3 * a;
-  return (x: number) => {
-    if (x <= 0) return 0;
-    if (x >= 1) return 1;
-    let t = x;
-    for (let i = 0; i < 8; i++) {
-      const error = at(t, x1, x2) - x;
-      if (Math.abs(error) < 1e-5) break;
-      t = clamp(t - error / slope(t, x1, x2));
-    }
-    return at(t, y1, y2);
-  };
-}
-
-// Colors and motion come from the tokens in tokens.css.
+// Colors and motion come from the tokens in tokens.css (the --ease curve via motion.ts).
 function readTokens() {
   const style = getComputedStyle(document.documentElement);
   const token = (name: string) => style.getPropertyValue(name).trim();
@@ -130,12 +114,11 @@ function readTokens() {
     const n = parseInt(token(name).slice(1), 16);
     return new Vector3(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
   };
-  const [x1, y1, x2, y2] = (token('--ease').match(/-?[\d.]+/g) ?? []).map(Number);
   return {
     brass: rgb('--brass'),
     frost: rgb('--frost'),
     midnight: token('--midnight'),
-    ease: bezier(x1, y1, x2, y2),
+    ease,
     duration: parseFloat(token('--dur-3')),
     radius: parseFloat(token('--radius-card')),
   };

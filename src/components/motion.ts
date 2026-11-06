@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 // Motion lives in CSS. JS only (1) flags <html class="motion"> so hidden start states exist at all,
-// (2) marks [data-reveal] elements once as they enter, and (3) writes scroll-linked CSS variables
-// from one rAF loop, driven by Lenis on wide fine-pointer screens and by native scroll elsewhere.
-// With reduced motion none of this runs, so everything renders in its final state.
+// and <html class="sda"> where CSS scroll-driven animations run the scroll-linked 3D on the
+// compositor, (2) marks [data-reveal] elements once as they enter, and elements already on screen
+// when the page opens as [data-settled] (final pose), and (3) writes scroll-linked CSS variables from
+// one rAF loop, driven by Lenis on wide fine-pointer screens and by native scroll elsewhere. Without
+// scroll-driven animations that loop also writes the 3D progress, eased with --ease. With reduced
+// motion none of this runs, so everything renders in its final state.
 
 const REDUCE = '(prefers-reduced-motion: reduce)';
 export const SMOOTH_SCROLL = '(min-width: 768px) and (pointer: fine)';
@@ -14,6 +17,48 @@ export function prefersReducedMotion(): boolean {
 
 // Set before React's first paint so in-view content never flashes visible, then hidden, then in.
 document.documentElement.classList.toggle('motion', !prefersReducedMotion());
+
+export const scrollDriven = () => typeof CSS !== 'undefined' && CSS.supports('animation-timeline: view()');
+
+// cubic-bezier(x1, y1, x2, y2) as a function of progress, solved with Newton steps.
+function bezier(x1: number, y1: number, x2: number, y2: number) {
+  const at = (t: number, a: number, b: number) => ((1 - 3 * b + 3 * a) * t + (3 * b - 6 * a)) * t * t + 3 * a * t;
+  const slope = (t: number, a: number, b: number) => 3 * (1 - 3 * b + 3 * a) * t * t + 2 * (3 * b - 6 * a) * t + 3 * a;
+  return (x: number) => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const error = at(t, x1, x2) - x;
+      if (Math.abs(error) < 1e-5) break;
+      t = Math.min(1, Math.max(0, t - error / slope(t, x1, x2)));
+    }
+    return at(t, y1, y2);
+  };
+}
+
+// The --ease token as a function, for motion that JS drives (the 3D fallback, the hero scene).
+let curve: ((x: number) => number) | null = null;
+export function ease(x: number) {
+  if (!curve) {
+    const token = getComputedStyle(document.documentElement).getPropertyValue('--ease');
+    const [x1, y1, x2, y2] = (token.match(/-?[\d.]+/g) ?? ['0', '0', '1', '1']).map(Number);
+    curve = bezier(x1, y1, x2, y2);
+  }
+  return curve(x);
+}
+
+// Elements with scroll-linked 3D (sections.css). Those on screen when the page opens, or when it
+// lands on a #fragment, take their final pose at once and keep it.
+const SCROLL_3D = '.pcard, .profile-card, .skill-card, .others__item, .certs';
+export function settleVisible() {
+  if (!document.documentElement.classList.contains('motion')) return;
+  for (const el of document.querySelectorAll<HTMLElement>(SCROLL_3D)) {
+    const r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) el.setAttribute('data-settled', '');
+  }
+  window.dispatchEvent(new Event('portfolio:settled'));
+}
 
 export function useMedia(query: string): boolean {
   const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
@@ -80,8 +125,9 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
   useEffect(() => {
     let active = true;
     document.fonts.ready.then(() => {
-      if (!active || !window.location.hash) return;
-      fragmentTarget()?.scrollIntoView({ behavior: 'instant' });
+      if (!active) return;
+      if (window.location.hash) fragmentTarget()?.scrollIntoView({ behavior: 'instant' });
+      settleVisible();
     });
     return () => { active = false; };
   }, []);
@@ -89,6 +135,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
   useEffect(() => {
     const html = document.documentElement;
     html.classList.toggle('motion', enabled);
+    if (!enabled) html.classList.remove('sda');
     const progress = document.querySelector<HTMLElement>('.site-header__progress');
     const readProgress = () => {
       const max = html.scrollHeight - window.innerHeight;
@@ -119,8 +166,22 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
     }
 
     const hero = document.querySelector<HTMLElement>('.hero');
-    const certs = document.querySelector<HTMLElement>('.certs');
-    const cards = [...document.querySelectorAll<HTMLElement>('.pcard')];
+    // The 3D fallback: progress for each moving element, only where CSS cannot follow the scroll.
+    const sda = scrollDriven();
+    html.classList.toggle('sda', sda);
+    const all = (selector: string) => (sda ? [] : [...document.querySelectorAll<HTMLElement>(selector)]);
+    const cards = all('.pcard');
+    const stands = all('.profile-card');
+    const flips = all('.skill-card, .others__item');
+    const certs = sda ? null : document.querySelector<HTMLElement>('.certs');
+    const dealt = all('.cert');
+    // Share of the viewport scrolled since the top edge entered at the bottom, after `start` and over
+    // `length` (both in viewport heights), eased. sections.css uses the same ranges.
+    const travel = (top: number, vh: number, start: number, length: number) =>
+      ease(clamp((vh - top - start * vh) / (length * vh)));
+    const settled = (el: Element) => el.hasAttribute('data-settled');
+    // With a #fragment the page is not where it will open yet; the fragment jump settles instead.
+    if (!window.location.hash) settleVisible();
     const lines = [...document.querySelectorAll<HTMLElement>('.timeline')].map((line) => ({
       line,
       rows: [...line.querySelectorAll<HTMLElement>('.timeline__row')].map((row) => ({
@@ -135,8 +196,10 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
       const y = window.scrollY;
       const max = html.scrollHeight - vh;
       const heroRect = hero?.getBoundingClientRect();
-      const certsTop = certs?.getBoundingClientRect().top;
       const cardRects = cards.map((card) => card.getBoundingClientRect());
+      const standTops = stands.map((el) => el.getBoundingClientRect().top);
+      const flipTops = flips.map((el) => el.getBoundingClientRect().top);
+      const certsTop = certs?.getBoundingClientRect().top ?? 0;
       const measured = lines.map(({ line, rows }) => {
         const r = line.getBoundingClientRect();
         const reach = vh * 0.6 - r.top;
@@ -155,13 +218,24 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
       if (progress) setVar(progress, '--read', max > 0 ? clamp(y / max) : 0);
       html.toggleAttribute('data-scrolled', y > 8);
       if (hero && heroRect) setVar(hero, '--out', clamp(-heroRect.top / heroRect.height));
-      // Certificates deal out of a pile as the grid's top climbs from 95% to 40% of the viewport.
-      if (certs && certsTop !== undefined) setVar(certs, '--deal', clamp((vh * 0.95 - certsTop) / (vh * 0.55)));
       cards.forEach((card, i) => {
         const r = cardRects[i];
-        setVar(card, '--enter', clamp((vh - r.top) / (vh * 0.4)));
-        setVar(card, '--pass', clamp((r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2), -1));
+        const rest = settled(card);
+        if (sda) return;
+        // Stands up over 60% of a viewport; tilts +6° → 0° → -4° while the card crosses the screen.
+        const cover = (vh - r.top) / (vh + r.height);
+        const tilt = cover <= 0 || cover >= 1 ? 0 : cover < 0.5 ? 6 * (1 - ease(cover * 2)) : -4 * ease(cover * 2 - 1);
+        setVar(card, '--enter', rest ? 1 : travel(r.top, vh, 0, 0.6));
+        setVar(card, '--tilt', rest ? 0 : tilt);
+        setVar(card, '--pass', rest ? 0 : clamp((r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2), -1));
       });
+      stands.forEach((el, i) => setVar(el, '--enter', settled(el) ? 1 : travel(standTops[i], vh, 0, 0.6)));
+      flips.forEach((el, i) => {
+        const index = parseFloat(el.style.getPropertyValue('--i')) || 0;
+        setVar(el, '--flip', settled(el) ? 1 : travel(flipTops[i], vh, index * 0.03, 0.4));
+      });
+      const dealDone = certs ? settled(certs) : true;
+      dealt.forEach((el, i) => setVar(el, '--p', dealDone ? 1 : travel(certsTop, vh, 0.05 + i * 0.04, 0.4)));
       for (const { line, rows, fill, lit } of measured) {
         setVar(line, '--line-fill', fill);
         rows.forEach(({ row, dot }, i) => {
@@ -190,6 +264,15 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
     };
     update();
     listen('scroll', schedule);
+    // Settling after a fragment jump changes the fallback values too.
+    const resettle = () => {
+      if (lenisOn) {
+        dirty = true;
+        wake();
+      } else schedule();
+    };
+    window.addEventListener('portfolio:settled', resettle);
+    cleanup.push(() => window.removeEventListener('portfolio:settled', resettle));
 
     // Wakes the Lenis loop; replaced once Lenis is in.
     let wake = () => {};
@@ -267,6 +350,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
           if (!target) return;
           syncScroll();
           lenis.scrollTo(target, { immediate: true, force: true });
+          settleVisible();
         };
         document.fonts.ready.then(() => { if (!stopped) restoreFragment(); });
         window.addEventListener('hashchange', restoreFragment);
@@ -294,7 +378,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
     return () => {
       cancelAnimationFrame(frame);
       cleanup.forEach((fn) => fn());
-      html.classList.remove('motion');
+      html.classList.remove('motion', 'sda');
     };
   }, [enabled, smooth]);
 }

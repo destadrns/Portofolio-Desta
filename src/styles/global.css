@@ -335,7 +335,7 @@ html.lenis {
   }
 }
 
-/* Print: hidden entrance states, the screenshot curtain, and the hero exit never reach paper. */
+/* Print: hidden entrance states, the scroll-linked 3D, and the hero exit never reach paper. */
 @media print {
   html.motion [data-reveal],
   html.motion .pcard > *,
@@ -345,22 +345,25 @@ html.lenis {
     transform: none !important;
   }
 
-  html.motion .pcard__frame {
-    clip-path: none !important;
-    aspect-ratio: auto !important;
+  html.motion :is(.pcard__frame, .profile-card, .skill-card, .others__item, .cert) {
+    opacity: 1 !important;
     transform: none !important;
+    rotate: none !important;
+    animation: none !important;
+  }
+
+  html.motion .pcard__frame {
+    aspect-ratio: auto !important;
   }
 
   .pcard__frame::after,
   html.motion .cert::before {
     opacity: 0 !important;
-  }
-
-  html.motion .cert {
-    transform: none !important;
+    animation: none !important;
   }
 
   html.motion .pcard__frame img {
     translate: none !important;
+    animation: none !important;
   }
 }

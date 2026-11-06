@@ -837,24 +837,11 @@ html[data-scrolled] .site-header::before,
   margin-inline-end: var(--space-4);
 }
 
-html.motion .pcard__frame {
-  clip-path: inset(calc((1 - var(--enter, 1)) * 12%));
-}
-
-/* The frame also stands up with --enter: it starts lying back 16° on its bottom edge and is upright
-   at 1. A faint sheen on its face fades as it rises and a soft contact shadow under it appears; both
-   are pseudo-elements and only their opacity changes. The image link is the 3D viewer. */
+/* The frame stands up, tilts, and drifts with the scroll (Scroll-linked 3D, end of file). A faint
+   sheen on its face fades as it rises and a soft contact shadow under it appears; both are
+   pseudo-elements and only their opacity changes. The image link is the 3D viewer. */
 .pcard__image-link {
   position: relative;
-}
-
-html.motion .pcard__image-link {
-  perspective: 900px;
-}
-
-html.motion .pcard__frame {
-  transform-origin: 50% 100%;
-  transform: rotateX(calc((1 - var(--enter, 1)) * 16deg));
 }
 
 .pcard__frame {
@@ -871,7 +858,7 @@ html.motion .pcard__frame {
 .pcard__frame::after {
   inset: 0;
   background: linear-gradient(170deg, color-mix(in srgb, var(--frost) 16%, transparent), transparent 55%);
-  opacity: calc(1 - var(--enter, 1));
+  opacity: 0;
 }
 
 /* Placed in the frame's grid row, so it sits on the frame's bottom edge. */
@@ -883,7 +870,6 @@ html.motion .pcard__frame {
   left: 6%;
   height: 20px;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--midnight) 85%, transparent), transparent);
-  opacity: var(--enter, 1);
 }
 
 .pcard__frame img {
@@ -903,7 +889,7 @@ html.motion .pcard__frame {
   }
 
   html.motion .pcard__frame img {
-    translate: 0 calc((-1 - var(--pass, 0)) * 5.75%);
+    translate: 0 -5.75%;
   }
 }
 
@@ -1403,38 +1389,22 @@ html:not(.motion) .timeline__dot::after {
   margin-top: auto;
 }
 
-/* Deal (scroll-linked): --deal on .certs runs 0 → 1 (motion.ts) and each card starts 0.07 after the
-   one before (--i). Piled, the cards sit at the grid's top centre (--dx, --dy from Certifications.tsx),
-   tilted in turn from -5° to 4.5°, layered back and leaning back a little, the first card on top. A
-   soft shadow shows while they are piled (a pseudo-element; only its opacity changes). The section
-   clips sideways, so the pile never widens the page. */
+/* The deal (Scroll-linked 3D, end of file): piled, the cards sit at the grid's top centre (--dx, --dy
+   from Certifications.tsx), tilted in turn from -5° to 4.5°, layered back and leaning back a little,
+   the first card on top, with a soft shadow (a pseudo-element; only its opacity changes). The
+   section clips sideways, so the pile never widens the page. */
 html.motion .certs {
   perspective: 1400px;
   perspective-origin: 50% 0;
 }
 
 html.motion .cert {
-  --p: clamp(0, (var(--deal, 1) - var(--i) * 0.07) / 0.65, 1);
-  --piled: calc(1 - var(--p) * (2 - var(--p)));
   --side: -1;
   z-index: calc(10 - var(--i));
-  transform: translate3d(
-      calc(var(--dx, 0px) * var(--piled)),
-      calc((var(--dy, 0px) + var(--i) * 6px) * var(--piled)),
-      calc(var(--i) * -30px * var(--piled))
-    )
-    rotate(calc(var(--side) * (5deg - var(--i) * 0.5deg) * var(--piled)))
-    rotateX(calc(12deg * var(--piled)));
 }
 
 html.motion .cert:nth-child(even) {
   --side: 1;
-}
-
-/* Keyboard focus inside the grid deals every card at once, so a focused link is never under the pile
-   (WCAG 2.4.11). Certifications.tsx then keeps it on screen. */
-html.motion .certs:focus-within .cert {
-  --piled: 0;
 }
 
 html.motion .cert::before {
@@ -1444,7 +1414,7 @@ html.motion .cert::before {
   z-index: -1;
   border-radius: inherit;
   box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--ink) 35%, transparent);
-  opacity: var(--piled);
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -1576,5 +1546,260 @@ html.motion .cert::before {
 
   .contact-panel__actions {
     padding-top: calc(var(--space-6) + 1px);
+  }
+}
+
+/* ---------- Scroll-linked 3D ----------
+   Motif "screens and cards": project screenshots stand up and tilt as they pass, the profile card
+   stands up, Skills and Other projects flip in one by one, and the certificates are dealt out of a
+   pile. Transform and opacity only, every curve --ease (the image drift stays linear: it tracks the
+   scroll one to one). Ranges run in viewport heights from the moment an element's top edge enters
+   at the bottom; motion.ts uses the same numbers:
+
+   - screenshot (the card's timeline): fades in and stands up from 16° over 0 → 60vh; tilts
+     +6° → 0° → -4° while the card crosses the screen; on 768px+ the image drifts the whole way.
+   - profile card: stands up from 16° over 0 → 60vh, on the same perspective and bottom edge.
+   - Skills and Other projects: each card flips down from 70° on its top edge over 40vh, starting
+     3vh later per card (--i).
+   - certificates (the grid's timeline): card i is dealt over 40vh, starting at 5vh + 4vh × i.
+
+   With scroll-driven animations (html.sda) these are CSS animations the compositor runs in step with
+   the scroll, Lenis included. Elsewhere motion.ts writes the same eased progress as --enter, --tilt,
+   --pass, --flip, and --p. [data-settled] (on screen when the page opened) and keyboard focus inside
+   a list show the final pose, so a focused link is never under another card (WCAG 2.4.11). */
+html.motion :is(.pcard__image-link, .profile-stage) {
+  perspective: 900px;
+}
+
+html.motion :is(.pcard__frame, .profile-card) {
+  transform-origin: 50% 100%;
+}
+
+html.motion :is(.skill-cards, .others__list) {
+  perspective: 1200px;
+}
+
+html.motion :is(.skill-card, .others__item) {
+  transform-origin: 50% 0;
+}
+
+/* Fallback: progress from motion.ts. */
+html.motion:not(.sda) .pcard__frame {
+  opacity: clamp(0, var(--enter, 1) * 2, 1);
+  transform: rotateX(calc((1 - var(--enter, 1)) * 16deg + var(--tilt, 0) * 1deg))
+    scale(calc(0.88 + 0.12 * var(--enter, 1)));
+}
+
+html.motion:not(.sda) .pcard__frame::after {
+  opacity: calc(1 - var(--enter, 1));
+}
+
+html.motion:not(.sda) .pcard__image-link::before {
+  opacity: var(--enter, 1);
+}
+
+@media (min-width: 768px) {
+  html.motion:not(.sda) .pcard__frame img {
+    translate: 0 calc((-1 - var(--pass, 0)) * 5.75%);
+  }
+}
+
+html.motion:not(.sda) .profile-card {
+  transform: rotateX(calc((1 - var(--enter, 1)) * 16deg));
+}
+
+html.motion:not(.sda) :is(.skill-card, .others__item) {
+  opacity: clamp(0, var(--flip, 1) * 2.5, 1);
+  transform: rotateX(calc((1 - var(--flip, 1)) * 70deg));
+}
+
+html.motion:not(.sda) .cert {
+  --piled: calc(1 - var(--p, 1));
+  transform: translate3d(
+      calc(var(--dx, 0px) * var(--piled)),
+      calc((var(--dy, 0px) + var(--i) * 6px) * var(--piled)),
+      calc(var(--i) * -30px * var(--piled))
+    )
+    rotate(calc(var(--side) * (5deg - var(--i) * 0.5deg) * var(--piled)))
+    rotateX(calc(12deg * var(--piled)));
+}
+
+html.motion:not(.sda) .cert::before {
+  opacity: var(--piled);
+}
+
+html.motion :is(.skill-cards, .others__list):focus-within > * {
+  --flip: 1 !important;
+}
+
+html.motion .certs:focus-within .cert {
+  --piled: 0 !important;
+}
+
+/* Scroll-driven animations. */
+@supports (animation-timeline: view()) {
+  html.motion.sda .pcard {
+    view-timeline: --card block;
+  }
+
+  html.motion.sda .certs {
+    view-timeline: --certs block;
+  }
+
+  html.motion.sda .pcard__frame {
+    animation: frame-stand linear both, frame-tilt linear none;
+    animation-timeline: --card, --card;
+    animation-range: cover 0% cover 60vh, cover 0% cover 100%;
+    animation-timing-function: var(--ease), linear;
+  }
+
+  html.motion.sda .pcard__frame::after,
+  html.motion.sda .pcard__image-link::before {
+    animation: fade-out linear both;
+    animation-timeline: --card;
+    animation-range: cover 0% cover 60vh;
+    animation-timing-function: var(--ease);
+  }
+
+  html.motion.sda .pcard__image-link::before {
+    animation-name: fade-in;
+  }
+
+  html.motion.sda .profile-card {
+    animation: stand-up linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 60vh;
+    animation-timing-function: var(--ease);
+  }
+
+  html.motion.sda :is(.skill-card, .others__item) {
+    animation: flip-in linear both;
+    animation-timeline: view();
+    animation-range: cover calc(var(--i, 0) * 3vh) cover calc(40vh + var(--i, 0) * 3vh);
+    animation-timing-function: var(--ease);
+  }
+
+  html.motion.sda .cert,
+  html.motion.sda .cert::before {
+    animation: deal linear both;
+    animation-timeline: --certs;
+    animation-range: cover calc(5vh + var(--i) * 4vh) cover calc(45vh + var(--i) * 4vh);
+    animation-timing-function: var(--ease);
+  }
+
+  html.motion.sda .cert::before {
+    animation-name: fade-out;
+  }
+
+  @media (min-width: 768px) {
+    html.motion.sda .pcard__frame img {
+      animation: drift linear both;
+      animation-timeline: --card;
+      animation-range: cover 0% cover 100%;
+    }
+  }
+
+  html.motion [data-settled] .pcard__frame,
+  html.motion [data-settled] .pcard__frame img,
+  html.motion [data-settled] .pcard__frame::after,
+  html.motion [data-settled] .pcard__image-link::before,
+  html.motion [data-settled]:is(.profile-card, .skill-card, .others__item),
+  html.motion .certs[data-settled] .cert,
+  html.motion .certs[data-settled] .cert::before,
+  html.motion :is(.skill-cards, .others__list):focus-within > *,
+  html.motion .certs:focus-within .cert,
+  html.motion .certs:focus-within .cert::before {
+    animation: none;
+  }
+}
+
+@keyframes frame-stand {
+  from {
+    opacity: 0;
+    transform: rotateX(16deg) scale(0.88);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes frame-tilt {
+  0% {
+    rotate: x 6deg;
+    animation-timing-function: var(--ease);
+  }
+
+  50% {
+    rotate: x 0deg;
+    animation-timing-function: var(--ease);
+  }
+
+  100% {
+    rotate: x -4deg;
+  }
+}
+
+@keyframes stand-up {
+  from {
+    transform: rotateX(16deg);
+  }
+}
+
+@keyframes flip-in {
+  from {
+    opacity: 0;
+    transform: rotateX(70deg);
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes deal {
+  from {
+    transform: translate3d(var(--dx, 0px), calc(var(--dy, 0px) + var(--i) * 6px), calc(var(--i) * -30px))
+      rotate(calc(var(--side) * (5deg - var(--i) * 0.5deg))) rotateX(12deg);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes drift {
+  from {
+    translate: 0 -11.5%;
+  }
+
+  to {
+    translate: 0 0;
   }
 }
