@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from 'react';
 // compositor, (2) marks [data-reveal] elements once as they enter, and elements already on screen
 // when the page opens as [data-settled] (final pose), and (3) writes scroll-linked CSS variables from
 // one rAF loop, driven by Lenis on wide fine-pointer screens and by native scroll elsewhere. Without
-// scroll-driven animations that loop also writes the 3D progress, eased with --ease. With reduced
-// motion none of this runs, so everything renders in its final state.
+// scroll-driven animations that loop also writes the 3D progress, eased with --ease-scroll. With
+// reduced motion none of this runs, so everything renders in its final state.
 
 const REDUCE = '(prefers-reduced-motion: reduce)';
 export const SMOOTH_SCROLL = '(min-width: 768px) and (pointer: fine)';
@@ -37,16 +37,23 @@ function bezier(x1: number, y1: number, x2: number, y2: number) {
   };
 }
 
-// The --ease token as a function, for motion that JS drives (the 3D fallback, the hero scene).
-let curve: ((x: number) => number) | null = null;
-export function ease(x: number) {
-  if (!curve) {
-    const token = getComputedStyle(document.documentElement).getPropertyValue('--ease');
-    const [x1, y1, x2, y2] = (token.match(/-?[\d.]+/g) ?? ['0', '0', '1', '1']).map(Number);
-    curve = bezier(x1, y1, x2, y2);
-  }
-  return curve(x);
+// An easing token as a function, read from tokens.css once.
+function tokenCurve(name: string) {
+  let curve: ((x: number) => number) | null = null;
+  return (x: number) => {
+    if (!curve) {
+      const token = getComputedStyle(document.documentElement).getPropertyValue(name);
+      const [x1, y1, x2, y2] = (token.match(/-?[\d.]+/g) ?? ['0', '0', '1', '1']).map(Number);
+      curve = bezier(x1, y1, x2, y2);
+    }
+    return curve(x);
+  };
 }
+
+// --ease for time-based motion JS drives (the hero scene); --ease-scroll for the scroll-linked 3D
+// fallback, matching the CSS scroll-driven animations.
+export const ease = tokenCurve('--ease');
+export const easeScroll = tokenCurve('--ease-scroll');
 
 // Elements with scroll-linked 3D (sections.css). Those on screen when the page opens, or when it
 // lands on a #fragment, take their final pose at once and keep it.
@@ -178,7 +185,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
     // Share of the viewport scrolled since the top edge entered at the bottom, after `start` and over
     // `length` (both in viewport heights), eased. sections.css uses the same ranges.
     const travel = (top: number, vh: number, start: number, length: number) =>
-      ease(clamp((vh - top - start * vh) / (length * vh)));
+      easeScroll(clamp((vh - top - start * vh) / (length * vh)));
     const settled = (el: Element) => el.hasAttribute('data-settled');
     // With a #fragment the page is not where it will open yet; the fragment jump settles instead.
     if (!window.location.hash) settleVisible();
@@ -224,7 +231,7 @@ export function useScrollMotion(enabled: boolean, smooth: boolean) {
         if (sda) return;
         // Stands up over 60% of a viewport; tilts +6° → 0° → -4° while the card crosses the screen.
         const cover = (vh - r.top) / (vh + r.height);
-        const tilt = cover <= 0 || cover >= 1 ? 0 : cover < 0.5 ? 6 * (1 - ease(cover * 2)) : -4 * ease(cover * 2 - 1);
+        const tilt = cover <= 0 || cover >= 1 ? 0 : cover < 0.5 ? 6 * (1 - easeScroll(cover * 2)) : -4 * easeScroll(cover * 2 - 1);
         setVar(card, '--enter', rest ? 1 : travel(r.top, vh, 0, 0.6));
         setVar(card, '--tilt', rest ? 0 : tilt);
         setVar(card, '--pass', rest ? 0 : clamp((r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2), -1));

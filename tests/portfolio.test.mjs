@@ -507,3 +507,31 @@ test('The profile photo loads at 480 × 640', async () => {
   assert.equal(response.status(), 200);
   assert.match(response.headers()['content-type'], /image\/webp/);
 });
+
+test('Scroll-linked motion eases with --ease-scroll in both paths; time-based motion keeps --ease', async () => {
+  await page.goto(`${origin}/?lang=id#experience`);
+  const curves = await page.evaluate(() => ({
+    scroll: [...document.querySelectorAll('.pcard__frame, .pcard__frame::after, .profile-card, .skill-card, .others__item, .cert')]
+      .map(el => getComputedStyle(el).animationTimingFunction.split(/,\s*(?=[a-z])/)[0]),
+    time: getComputedStyle(document.querySelector('.hero__title')).animationTimingFunction,
+  }));
+  assert.deepEqual([...new Set(curves.scroll)], ['cubic-bezier(0.4, 0, 0.2, 1)'], 'Scroll-driven animations use --ease-scroll');
+  assert.equal(curves.time, 'cubic-bezier(0.16, 1, 0.3, 1)', 'The hero entrance keeps --ease');
+
+  // Fallback: halfway through its stand-up range, --ease-scroll gives about 0.77; --ease would give
+  // about 0.97.
+  await context.close();
+  context = await browser.newContext({ viewport: { width: 390, height: 900 } });
+  page = await context.newPage();
+  page.on('pageerror', error => errors.push(error.message));
+  await page.addInitScript(withoutScrollTimelines);
+  await page.goto(`${origin}/?lang=id#experience`);
+  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => {
+    const card = document.querySelector('.profile-card');
+    scrollTo({ top: card.getBoundingClientRect().top + scrollY - innerHeight * 0.7, behavior: 'instant' });
+  });
+  await page.waitForTimeout(250);
+  const enter = await page.locator('.profile-card').evaluate(el => parseFloat(el.style.getPropertyValue('--enter')));
+  assert(enter > 0.72 && enter < 0.82, `Fallback progress follows --ease-scroll (${enter})`);
+});

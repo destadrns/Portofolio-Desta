@@ -82,8 +82,10 @@
   --radius-chip: 999px;
   --border: 1px;
   --header-h: 64px;
-  /* Motion: one curve, three durations (200–700 ms). Nothing loops. */
+  /* Motion: two curves, three durations (200–700 ms). --ease for time-based motion, --ease-scroll
+     for motion tied to the scroll (eases in and out, so it follows the scroll evenly). */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-scroll: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-1: 200ms;   /* feedback: hover, press, focus, language fade, copy */
   --dur-2: 400ms;   /* active-nav slide */
   --dur-3: 700ms;   /* every one-time entrance, stack arrival */

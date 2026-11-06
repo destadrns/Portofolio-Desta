@@ -1552,8 +1552,9 @@ html.motion .cert::before {
 /* ---------- Scroll-linked 3D ----------
    Motif "screens and cards": project screenshots stand up and tilt as they pass, the profile card
    stands up, Skills and Other projects flip in one by one, and the certificates are dealt out of a
-   pile. Transform and opacity only, every curve --ease (the image drift stays linear: it tracks the
-   scroll one to one). Ranges run in viewport heights from the moment an element's top edge enters
+   pile. Transform and opacity only, every curve --ease-scroll, which eases in and out so the motion
+   follows the scroll evenly (time-based motion keeps --ease; the image drift stays linear: it tracks
+   the scroll one to one). Ranges run in viewport heights from the moment an element's top edge enters
    at the bottom; motion.ts uses the same numbers:
 
    - screenshot (the card's timeline): fades in and stands up from 16° over 0 → 60vh; tilts
@@ -1650,7 +1651,7 @@ html.motion .certs:focus-within .cert {
     animation: frame-stand linear both, frame-tilt linear none;
     animation-timeline: --card, --card;
     animation-range: cover 0% cover 60vh, cover 0% cover 100%;
-    animation-timing-function: var(--ease), linear;
+    animation-timing-function: var(--ease-scroll), linear;
   }
 
   html.motion.sda .pcard__frame::after,
@@ -1658,7 +1659,7 @@ html.motion .certs:focus-within .cert {
     animation: fade-out linear both;
     animation-timeline: --card;
     animation-range: cover 0% cover 60vh;
-    animation-timing-function: var(--ease);
+    animation-timing-function: var(--ease-scroll);
   }
 
   html.motion.sda .pcard__image-link::before {
@@ -1669,14 +1670,14 @@ html.motion .certs:focus-within .cert {
     animation: stand-up linear both;
     animation-timeline: view();
     animation-range: cover 0% cover 60vh;
-    animation-timing-function: var(--ease);
+    animation-timing-function: var(--ease-scroll);
   }
 
   html.motion.sda :is(.skill-card, .others__item) {
     animation: flip-in linear both;
     animation-timeline: view();
     animation-range: cover calc(var(--i, 0) * 3vh) cover calc(40vh + var(--i, 0) * 3vh);
-    animation-timing-function: var(--ease);
+    animation-timing-function: var(--ease-scroll);
   }
 
   html.motion.sda .cert,
@@ -1684,7 +1685,7 @@ html.motion .certs:focus-within .cert {
     animation: deal linear both;
     animation-timeline: --certs;
     animation-range: cover calc(5vh + var(--i) * 4vh) cover calc(45vh + var(--i) * 4vh);
-    animation-timing-function: var(--ease);
+    animation-timing-function: var(--ease-scroll);
   }
 
   html.motion.sda .cert::before {
@@ -1732,12 +1733,12 @@ html.motion .certs:focus-within .cert {
 @keyframes frame-tilt {
   0% {
     rotate: x 6deg;
-    animation-timing-function: var(--ease);
+    animation-timing-function: var(--ease-scroll);
   }
 
   50% {
     rotate: x 0deg;
-    animation-timing-function: var(--ease);
+    animation-timing-function: var(--ease-scroll);
   }
 
   100% {
