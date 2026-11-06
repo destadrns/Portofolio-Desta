@@ -226,6 +226,34 @@ test('The WebGL stack fades in over the CSS stack on a wide screen with a mouse'
   assert.equal(await page.locator('canvas').count(), 1, 'One WebGL canvas');
   assert.equal(await page.locator('.stack__canvas').getAttribute('aria-hidden'), 'true');
   assert.equal(await page.locator('.stack__plate').count(), 5, 'The CSS stack stays in the DOM');
+  const plates = await page.locator('.stack__plate').evaluateAll(imgs => imgs.map(img => img.currentSrc));
+  const stackImages = new Set(requested.filter(url => new URL(url).pathname.startsWith('/img/stack/')));
+  assert.deepEqual([...stackImages].sort(), [...new Set(plates)].sort(), 'The scene reuses the CSS plate files, no other sizes');
+  assert.deepEqual(consoleErrors, [], 'No console errors');
+});
+
+test('A lost WebGL context fades the CSS stack back and keeps 3D off for the visit', async () => {
+  const consoleErrors = [];
+  const requested = [];
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  await page.goto(`${origin}/?lang=id`);
+  await page.waitForSelector('.stack[data-gl]', { timeout: 15000 });
+  const stage = page.locator('.stack__stage');
+  const fadeIn = await stage.evaluate(el => getComputedStyle(el).transition);
+  await page.evaluate(() => document.querySelector('.stack__canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
+  await page.waitForSelector('.stack:not([data-gl])');
+  assert.equal(await page.locator('canvas').count(), 0, 'The canvas is gone');
+  assert.equal(await stage.evaluate(el => getComputedStyle(el).transition), fadeIn, 'Fades back with the transition it left with');
+  assert.equal(fadeIn, 'opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1)', 'The --dur-3 and --ease fade');
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('.stack__stage')).opacity === '1');
+
+  page.on('request', request => requested.push(request.url()));
+  await page.setViewportSize({ width: 900, height: 900 });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(2500);
+  assert.equal(await page.locator('canvas').count(), 0, 'The 3D stack is not loaded again');
+  assert.equal(await page.locator('.stack[data-gl]').count(), 0);
+  assert.deepEqual(requested.filter(isSceneChunk), []);
   assert.deepEqual(consoleErrors, [], 'No console errors');
 });
 
@@ -268,7 +296,9 @@ test('Clicking the middle plate, or its skip link, lands on that project card', 
   const link = page.locator('.stack__links a[href="#nest"]');
   assert.equal(await link.evaluate(el => el.getBoundingClientRect().width), 1, 'Hidden until focused');
   await link.focus();
-  assert((await link.boundingBox()).width > 44, 'Visible once focused');
+  const focused = await link.boundingBox();
+  assert(focused.width > 44 && focused.height >= 44, 'Visible once focused, at least 44px tall');
+  assert.equal(await page.locator('.hero nav').count(), 0, 'Not a second project navigation landmark');
   await page.waitForFunction(() => document.querySelector('.stack__label[data-on]')?.textContent.includes('NEST'));
   await page.keyboard.press('Enter');
   await waitForCard('nest');
@@ -353,6 +383,34 @@ test('The WebGL stack stops moving on its own within 5 s of the pointer leaving'
   const before = await page.evaluate(() => window.frames$);
   await page.waitForTimeout(1000);
   assert.equal(await page.evaluate(() => window.frames$) - before, 0, 'No frames while nothing moves');
+
+  // At rest the camera is back home, so the front plate lines up with the CSS one: same pixels, read
+  // from a screenshot of a patch of NOVAÉ, first in WebGL, then with the CSS stack shown instead.
+  const box = await page.locator('.stack').boundingBox();
+  const clip = { x: box.x + box.width * 0.35 - 15, y: box.y + box.height / 2 + box.width * 0.115 - 15, width: 30, height: 30 };
+  const mean = async () => page.evaluate(async src => {
+    const img = new Image();
+    img.src = src;
+    await img.decode();
+    const ctx = Object.assign(document.createElement('canvas'), { width: img.width, height: img.height }).getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const data = ctx.getImageData(0, 0, img.width, img.height).data;
+    const sum = [0, 0, 0];
+    for (let i = 0; i < data.length; i += 4) for (let c = 0; c < 3; c++) sum[c] += data[i + c];
+    return sum.map(v => v / (data.length / 4));
+  }, 'data:image/png;base64,' + (await page.screenshot({ clip })).toString('base64'));
+  const webgl = await mean();
+  await page.evaluate(() => {
+    document.querySelector('.stack__canvas').style.visibility = 'hidden';
+    Object.assign(document.querySelector('.stack__stage').style, { transition: 'none', opacity: '1' });
+  });
+  const css = await mean();
+  assert(webgl.some(v => v > 12), `The plate shows its screenshot, not black (${webgl.map(Math.round)})`);
+  assert(webgl.every((v, c) => Math.abs(v - css[c]) < 6), `WebGL ${webgl.map(Math.round)} matches CSS ${css.map(Math.round)}`);
+  await page.evaluate(() => {
+    document.querySelector('.stack__canvas').style.visibility = '';
+    document.querySelector('.stack__stage').removeAttribute('style');
+  });
 
   const stack = await page.locator('.stack').boundingBox();
   await page.mouse.move(stack.x + stack.width * 0.78, stack.y + stack.height / 2);

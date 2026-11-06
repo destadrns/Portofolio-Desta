@@ -10,9 +10,9 @@ import {
   Raycaster,
   Scene,
   ShaderMaterial,
-  TextureLoader,
   Vector2,
   Vector3,
+  TextureLoader,
   WebGLRenderer,
   type Texture,
 } from 'three';
@@ -92,14 +92,15 @@ export type HeroSceneOptions = {
   hero: HTMLElement;
   stack: HTMLElement;
   label: HTMLElement;
-  images: string[];
+  images: string[]; // the CSS stack plates' currentSrc, already in the browser cache
   onHighlight: (index: number | null) => void;
   onSelect: (index: number) => void;
 };
 
 export type HeroScene = {
   setFocus: (index: number | null) => void;
-  dispose: () => void;
+  // contextLost: the GPU already freed everything, so only the loop and listeners need stopping.
+  dispose: (contextLost?: boolean) => void;
 };
 
 const clamp = (v: number) => Math.min(1, Math.max(0, v));
@@ -159,6 +160,9 @@ function shadowTexture(color: string) {
 
 export async function createHeroScene(o: HeroSceneOptions): Promise<HeroScene> {
   const tokens = readTokens();
+  // The files the CSS stack already chose from its srcset come back from the browser cache, so the
+  // scene downloads no images of its own. Not the <img> elements themselves: a srcset image reports
+  // a density-corrected size that differs from its pixels, which breaks the texture upload.
   const loader = new TextureLoader();
   const maps = await Promise.all(o.images.map((src) => loader.loadAsync(src)));
   const textures: Texture[] = [...maps];
@@ -421,7 +425,7 @@ export async function createHeroScene(o: HeroSceneOptions): Promise<HeroScene> {
         focus = index;
         wake();
       },
-      dispose() {
+      dispose(contextLost = false) {
         cancelAnimationFrame(frame);
         frame = 0;
         seen.disconnect();
@@ -433,6 +437,7 @@ export async function createHeroScene(o: HeroSceneOptions): Promise<HeroScene> {
         document.removeEventListener('visibilitychange', run);
         o.hero.removeAttribute('data-stack-hover');
         o.label.style.removeProperty('transform');
+        if (contextLost) return;
         plateGeometry.dispose();
         shadowGeometry.dispose();
         for (const p of plates) {

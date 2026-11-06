@@ -18,6 +18,9 @@ const PLATE_SIZES = '(min-width: 1024px) 310px, min(340px, calc((100vw - 32px) *
 // three.js is never requested and the CSS stack is all there is.
 const SCENE_QUERY = '(hover: hover) and (pointer: fine) and (min-width: 1024px) and (prefers-reduced-motion: no-preference)';
 
+// Set once the GPU drops the WebGL context; the 3D stack then stays off until the page reloads.
+let contextLost = false;
+
 // Runs fn once the page has loaded and the browser is idle.
 function afterLoadIdle(fn: () => void) {
   let cancelIdle = () => {};
@@ -57,24 +60,34 @@ export function HeroStack() {
   const [shown, setShown] = useState(0);
 
   // Loads heroScene.ts (three.js, its own chunk) into one canvas over the CSS stack. Until it is
-  // ready, and whenever loading or WebGL fails, the CSS stack stays as it is.
+  // ready, and whenever loading or WebGL fails, the CSS stack stays as it is. If the GPU drops the
+  // context later, the scene goes and the CSS stack fades back in (sections.css).
   useEffect(() => {
     const stack = stackRef.current;
     const hero = stack?.closest<HTMLElement>('.hero');
     const label = labelRef.current;
-    if (!sceneOn || !stack || !hero || !label) return;
+    if (!sceneOn || contextLost || !stack || !hero || !label) return;
 
     let cancelled = false;
     let pending = false;
     let canvas: HTMLCanvasElement | null = null;
     let context: WebGL2RenderingContext | null = null;
     const release = () => {
-      scene.current?.dispose();
+      scene.current?.dispose(contextLost);
       scene.current = null;
-      context?.getExtension('WEBGL_lose_context')?.loseContext();
+      if (!contextLost) context?.getExtension('WEBGL_lose_context')?.loseContext();
       canvas?.remove();
       context = null;
       canvas = null;
+    };
+    // Registered before three.js adds its own handler, which this one stops: no restore attempt.
+    const onLost = (e: Event) => {
+      e.stopImmediatePropagation();
+      contextLost = true;
+      cancelled = true;
+      release();
+      setReady(false);
+      setLit(null);
     };
 
     const stopWaiting = afterLoadIdle(() => {
@@ -86,6 +99,7 @@ export function HeroStack() {
       }
       canvas.className = 'stack__canvas';
       canvas.setAttribute('aria-hidden', 'true');
+      canvas.addEventListener('webglcontextlost', onLost);
       stack.append(canvas);
       const gl = { canvas, context };
       pending = true;
@@ -98,7 +112,7 @@ export function HeroStack() {
                 hero,
                 stack,
                 label,
-                images: projects.map((p) => stackImage(p.image, 640)),
+                images: [...stack.querySelectorAll<HTMLImageElement>('.stack__plate')].map((img) => img.currentSrc || img.src),
                 onHighlight: (index) => {
                   setLit(index);
                   if (index !== null) setShown(index);
@@ -156,21 +170,22 @@ export function HeroStack() {
           <p className="stack__label-hint">{t(ui.stackHint)}</p>
         </div>
       )}
-      <nav className="stack__links" aria-label={t(ui.stackLinks)}>
+      <ul className="stack__links" aria-label={t(ui.stackLinks)}>
         {projects.map((project, i) => (
-          <a
-            key={project.id}
-            ref={(el) => {
-              links.current[i] = el;
-            }}
-            href={`#${project.id}`}
-            onFocus={() => scene.current?.setFocus(i)}
-            onBlur={() => scene.current?.setFocus(null)}
-          >
-            {project.number} {project.name}
-          </a>
+          <li key={project.id}>
+            <a
+              ref={(el) => {
+                links.current[i] = el;
+              }}
+              href={`#${project.id}`}
+              onFocus={() => scene.current?.setFocus(i)}
+              onBlur={() => scene.current?.setFocus(null)}
+            >
+              {project.number} {project.name}
+            </a>
+          </li>
         ))}
-      </nav>
+      </ul>
     </div>
   );
 }

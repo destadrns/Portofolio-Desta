@@ -429,6 +429,7 @@ html[data-scrolled] .site-header::before,
   position: relative;
   aspect-ratio: 4 / 3;
   perspective: 150cqw;
+  transition: opacity var(--dur-3) var(--ease);
 }
 
 .stack__group {
@@ -504,7 +505,8 @@ html[data-scrolled] .site-header::before,
 
 /* WebGL stack (heroScene.ts, wide mouse screens only). Its canvas overhangs the stack evenly on every
    side, so plates have room to lift and spread; the hero clips it sideways and the canvas never takes
-   the pointer (the hero listens instead). Once the scene is ready it fades in over the CSS stage. */
+   the pointer (the hero listens instead). Once the scene is ready it fades in over the CSS stage; if
+   the WebGL context is lost, the stage fades back the same way. */
 .stack__canvas {
   position: absolute;
   top: -16%;
@@ -522,7 +524,6 @@ html[data-scrolled] .site-header::before,
 
 .stack[data-gl] .stack__stage {
   opacity: 0;
-  transition: opacity var(--dur-3) var(--ease);
 }
 
 .hero[data-stack-hover] {
@@ -567,12 +568,16 @@ html[data-scrolled] .site-header::before,
   color: var(--accent);
 }
 
-/* One link per plate, hidden until keyboard focus; then it shows under the stack's left edge. */
+/* One link per plate, hidden until keyboard focus; then it shows under the stack's left edge as a
+   full-size touch target. */
 .stack__links a {
   position: absolute;
   bottom: 0;
   left: 0;
   z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
   padding: var(--space-2) var(--space-3);
   border: var(--border) solid var(--line);
   border-radius: var(--radius-control);
@@ -586,6 +591,7 @@ html[data-scrolled] .site-header::before,
 .stack__links a:not(:focus) {
   width: 1px;
   height: 1px;
+  min-height: 0;
   padding: 0;
   border: 0;
   overflow: hidden;
